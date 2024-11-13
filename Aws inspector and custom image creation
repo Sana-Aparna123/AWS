@@ -1,0 +1,165 @@
+*Create an instance with linux 2022 image  using t3 small instance type and deploy script in that server.
+*script:
+-------
+#!/bin/bash	
+yum update -y
+yum install telnet -y
+yum install -y tmux
+amazon-linux-extras install nginx1.12 -y
+service nginx start
+systemctl enable nginx
+echo "<div><h1>$(cat /etc/hostname)</h1></div>" >> /usr/share/nginx/html/index.html
+*After instance is succesfully created edit the manage tags of that instance
+tags:
+----
+key:Batch
+value:65
+*connet to server using SSH client
+*inside of that server install Amazon inspector agent for linux
+   steps:
+     1. wget https://inspector-agent.amazonaws.com/linux/latest/install
+     2. sudo bash install.
+*After installing the agent and go to Amazon inspector service -classic
+  steps:
+    1.Assessment Targets:which target you want to scan
+    ----------------------
+    Name:AWSB65-Inspector-Scanning
+    tags:key-->Batch,value-->65
+    click save
+    2.Assesment templates:to scan the target create an assesment templates
+    -----------------------
+    create assesments events
+    name:AWSB65-Security-Assesment
+    target:AWSB65-Inspector-Scanning
+    Rules Packages:Network Reachability-1.1
+                   Security Best Practices-1.0
+                   Common Vulnerabilities and Exposures-1.1
+                   CIS Operating System Security Configuration Benchmarks-1.0
+    Duration:15 minutes
+    Uncheck the Assesment Schedule
+    click create and run:the scan starts it will take upto 15 mins after based on vulnerrabilities get we will try to resuce those         vulnerabilities using ansible playbooks.
+    
+    
+*After completes the scan go to that and download the report and check the vulnerabilities.
+
+drive link:https://docs.google.com/document/d/1qYdIoQSod_YzzejBQkJbwl5DwsIlT6vB/edit
+*follow the below steps to fix vulnerabilities
+
+1.Create a Amazon Linux 2 Server and install nginx using the following command. Also assign  a EC2 Role for SSM Sessions Manager Access.
+#!/bin/bash
+yum update -y
+amazon-linux-extras install nginx1.12 -y
+service nginx start
+echo "<h1>$(cat /etc/hostname)</h1>" >> /usr/share/nginx/html/index.html
+
+2.Deploy inspector agent and run the scan for 15 min which will give the findings in a PDF report.
+3.Install Ansible & Git
+sudo amazon-linux-extras install ansible2
+yum install git -y
+4.Clone the following repository
+https://github.com/mavrick202/cis-amazon-linux-2
+git clone https://github.com/hlta/cis-amazon-linux-2.git /root/roles/cis-amazon-linux-2
+
+5.Create playbook.yaml file.
+---
+- hosts: localhost
+  connection: local
+  gather_facts: true
+  become: yes
+  roles:
+	- cis-amazon-linux-2
+
+ansible-playbook playbook.yaml --syntax-check
+ansible-playbook playbook.yaml
+
+Once done reboot the server.
+6.By running the above playbook, you will lose putty connectivity. You can have the session from SSM Sessions Manager.
+Run the Inspector again for check for 15 min and the report should show decrease in the finings.
+
+
+
+
+
+
+Creating an Custom image:we will automate these all steps using hashicorp packer tool.Using packer we can create an custom images.
+------------------------
+To create a custom image:
+
+1. Create a EC2 Server.
+
+2. Login to the server.
+
+3. Install nessasary packeges and softwares.
+
+4. Stop the server.
+
+5. Create AMI from the server.
+
+6. Delete the server.
+     
+     
+*Install the hashicorp packer for our local ubuntu or linux machine.-->packer.io website-->https://releases.hashicorp.com/packer/1.11.2/packer_1.11.2_linux_amd64.zip
+
+*using that link go to your terminal and install
+wget https://releases.hashicorp.com/packer/1.11.2/packer_1.11.2_linux_amd64.zip 
+
+*check the packer version
+packer version
+output:Packer v1.11.2
+
+*go to this drive link:https://drive.google.com/drive/folders/1FjKCgPiuNg_zLQDlZf1yxww61IKSCj3S
+their download the list of files(copy the link of that file)using wget in your system or select everything and then right click download
+after its downloads to your system. create one directory like AWSB65 move to files to inside of that directory.
+    1.docker.service file
+    2.node_expoter.service file
+    3.packer.json file
+    4.packer.json.pkr.hcl
+    5.ReadMe.md
+    6.vars.json
+ *extract those files and send to the directory
+ *open the AWSB65 folder in vs code.so their install the plugin packer
+ *go to aws console and create an ubuntu server to create our custom ami image
+ *To creating ubuntu server using t2.medium
+ *change the varibale values of vars.json file details:these below details is from previous server which we create and give the public subnet id only so should be enable the auto assign public ip.
+ {
+    "region": "us-east-1",
+    "source_ami": "ami-0866a3c8686eaeeba",
+    "instance_type": "t2.medium",
+    "vpc_id": "vpc-0ef146a5ab5510161",
+    "subnet_id": "subnet-02b383486fa49d74b"
+}
+
+*Readme.md file should be contain these details like
+
+$Env:AWS_ACCESS_KEY_ID='AKIATQZCSIWFSG5AQCDG'
+$Env:AWS_SECRET_ACCESS_KEY='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'
+
+packer init packer.json.pkr.hcl
+packer  validate --var-file vars.json packer.json.pkr.hcl
+packer inspect --var-file vars.json packer.json.pkr.hcl
+packer  build --var-file vars.json packer.json.pkr.hcl 
+
+
+Note:in aws to genrate access key id and secret access key create an iam user in that give ec2fullaccess permission and click create
+where in security create an keys for this and update those details in Readme.md file
+
+*run these commands one by one in vscode terminal to run the script to create custom amipacker init packer.json.pkr.hcl
+packer init packer.json.pkr.hcl
+packer  validate --var-file vars.json packer.json.pkr.hcl
+packer inspect --var-file vars.json packer.json.pkr.hcl
+packer  build --var-file vars.json packer.json.pkr.hcl   -->the above six points will work
+
+*it will take 20 mins approximately to create an ami image in aws.so let it be wait
+
+*After ami image is created  test that ami image by creating an instance and deploy the below code which i will give in that and check that it is working or not and access the public ip of that instance.
+code:
+#!/bin/bash
+ansible-playbook /myrepo/playbook.yaml
+
+
+
+    
+ 
+ 
+
+
