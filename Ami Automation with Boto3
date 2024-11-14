@@ -1,0 +1,155 @@
+AMI automation with Boto3:
+--------------------------
+
+
+1. Copying AMI to other regions based on CreateImage Event. This is a way to automate AMI copy when ever a AMI is created.
+
+2. SSL/TLS Certificates and their generation.
+
+Infra Automation - AWS Cloudformation, Terraform
+
+Python Automation:
+
+1. Shutdown or reboot servers based on event or schedule.
+
+2. Copy AMI to different regions.
+
+3. Develop Lambda functions to event based automation like Copy a file to S3 Bucket.
+
+
+{
+
+"source": ["aws.ec2"],
+
+"detail-type": ["EC2 AMI State Change"],
+
+"detail": {
+
+"State": ["available"]
+
+}
+
+}
+
+*Symmetric Encryption Same key is used for both Encrypt and Decrypt.
+
+*Asymmetric Encryption Diff key is used for Encrypt and Decrypt.
+
+HTTPS: It uses both Symmetric and Asymmetric keys. 
+       For Establishing the sesion it uses Public and private key which is Assymetric key
+       For Data Transfer it uses Symmetric key.
+       
+ 
+ Automate Ami using Boto3 code:
+ --------------------------------
+import boto3
+import datetime
+import json
+regions = ['us-east-2','ap-south-1']
+def lambda_handler(event, context):
+    print(event)
+    print(event['detail']['ImageId'])
+    amiid = event['detail']['ImageId']
+    current_date = datetime.datetime.now().date()
+    for reg in regions:
+        client = boto3.client('ec2',region_name=reg)
+        response = client.copy_image(
+        Encrypted=False,
+        Name='AWSB65-AMI-'+str(current_date),
+        SourceImageId=amiid,
+        SourceRegion='us-east-1',
+        TagSpecifications=[
+            {
+                'ResourceType': 'image',
+                'Tags': [
+                    {
+                        'Key': 'Name',
+                        'Value': 'AWSB65-AMI-'+str(current_date),
+                    },
+                ]
+            },
+        ]
+        )
+        
+        
+        
+cloud Trail:
+-------------
+*go to event history and check it from filter by giving EventName and createImage value.u will bte our ami create image history.based on that event,so the event bridge captures that information.
+
+
+ Amazon Event Bridge:
+ --------------------------
+ 1.event bus:default
+ 2.clock create rule
+ ------------------
+ name:awsb65-ami-copy-using-lambda
+ description:awsb65-ami-copy-using-lambda
+ eventbus:default
+ rule type:Rule with an evcent pattern
+ and then click next
+ 3.Event Source-->AWS events or EventBridge partner events
+ 4.Creation method-->Use pattern form
+ 3.event pattern
+ ------------------
+ 1.event source-aws services
+ 2.aws service-Ec2
+ 3.event type-Ec2 Ami State Change.
+ 4.Event Type Specification 1
+   *specific ami state
+   *availabe
+ 5.Event Type Specification 2
+   *Any image ID
+   
+ pattern:
+ ------
+ {
+  "source": ["aws.ec2"],
+  "detail-type": ["EC2 AMI State Change"],
+  "detail": {
+    "State": ["available"]
+  }
+}
+
+
+4.Target1:
+----------
+target types-aws service
+select target-lambda function
+function name:lambdafunction
+
+5.click next-->next
+6.create rule
+ 
+ 
+        
+        
+ lambda function:
+ ---------------
+ * create a function :
+ -----------------------
+ 1.choose author from scratch
+ 2.function name:lambdafunction
+ 3.runtime:python 3.12
+ 4.Architecture:x86_64
+ 5.permissions-->use an existing role-->vpc1-ec2-session-manager-role
+ 6.click create function
+ 7.go to that function with name lambdafunction
+ 8.copy the above code click deploy
+ 
+ 
+ 
+ 
+ in cloud logging we will get like this:
+ --------------------------------------
+ log groups:
+ 
+ 
+ {'version': '0', 'id': 'bd115265-a32d-866a-a2da-33769d88e56f', 'detail-type': 'EC2 AMI State Change', 'source': 'aws.ec2', 'account': '242201281931', 'time': '2024-11-13T12:55:00Z', 'region': 'us-east-1', 'resources': ['arn:aws:ec2:us-east-1::image/ami-061c1bc8ec6da457b'], 'detail': {'RequestId': '4e7fa45d-6f32-477f-a913-e0403fdba556', 'State': 'available', 'ImageId': 'ami-061c1bc8ec6da457b', 'ErrorMessage': ''}}
+
+ 
+
+
+        
+        
+
