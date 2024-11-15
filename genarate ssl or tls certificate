@@ -30,33 +30,24 @@ Naked Domain:
 certbot certonly --manual --preferred-challenges=dns --key-type rsa --email aparnassana2001@gmail.com \
 --server https://acme-v02.api.letsencrypt.org/directory --agree-tos -d awsaparna123.xyz
 
+  or 
+  
+naked domain command to generate certificate and key:
+certbot certonly --manual --preferred-challenges=dns --key-type rsa --email aparnassana2001@gmail.com --agree-tos -d awsaparna123.xyz
 
-2. Load Balancer Types
------------------------
+wildcard domain command to generate certificate and key:
+certbot certonly --manual --preferred-challenges=dns --key-type rsa --email aparnassana2001@gmail.com --agree-tos -d *.awsaparna123.xyz
 
-#Global Load Balancer
+output:u will get below location print that using cat u will get encrypted code
+/etc/letsencrypt/live/awsaparna123.xyz/fullchain.pem
+/etc/letsencrypt/live/awsaparna123.xyz/privkey.pem
 
-#Regional Load Balancer
+*go to vscode and create like naked-awsaparna123.xyz.crt,naked-awsaparna123.xyz.key,wildcard-awsaparna123.xyz.crt,wildcard-awsaparna123.xyz.crt. copy those encrypted code and paste it in these files privkey.pem-->in naked-awsaparna123.xyz.key,fullchain.pem-->
+naked-awsaparna123.xyz.crt.Repeat this process for wildcard also.
 
-   *Network Load Balancer (NLB) / Layer 4 Load Balancer.
 
-   *Application Load Balancer (ALB) / Layer 7 Load Balancer.
+*import that certicate in ACM .Go to ACM service their import certificate is there paste these files pem details and import .Do this for both naked and wildcard.
 
-3. OSI Layer with Protocols
-----------------------------
 
-7 Application- http/https
-
-6 Presentation
-
-5 Session
-
-4 Transport TCP or UDP
-
-3 Network
-
-2 Datalink
-
-1 Physical
 
 
