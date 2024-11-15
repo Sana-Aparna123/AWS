@@ -1,0 +1,62 @@
+1. SSL/TLS Certificates.
+-----------------------------
+In two ways we can generate SSL OR TLS Certificates.
+
+#AWS Certificate Manager (ACM):public certificates are free in aws.
+-----------------------------
+*Go to ACM service their request for public certificate
+   1.ask for domain give the both naked(awsaparna123.xyz) and wildcard(*.awsaparna123.xyz) domain details.
+   2.validation method:either DNS validation or Email address.we will go with DNS validation
+   3.Key alogorithm:RSA 2048
+   4.click request
+*it will show pending validation if you create CNAME record in Route 53 service then only it will show the validation is success in status.
+
+*go to Route 53 service and create a record configure those details like CNAME,value which is ACM.Generate two records for naked and wildcard.
+   
+#3rd party certs using Certbot & Import in to AWS Certificate Manager.
+---------------------------------------------------------------------
+*create an ubuntu machine and log into machine.
+*install certbot and genearte both naked and wild card certificate and key.
+     
+sudo snap install --classic certbot
+
+Wildcard Domain:
+---------------
+certbot certonly --manual --preferred-challenges=dns --key-type rsa --email aparnassana2001@gmail.com \
+--server https://acme-v02.api.letsencrypt.org/directory --agree-tos -d *.awsaparna123.xyz
+
+Naked Domain:
+-------------
+certbot certonly --manual --preferred-challenges=dns --key-type rsa --email aparnassana2001@gmail.com \
+--server https://acme-v02.api.letsencrypt.org/directory --agree-tos -d awsaparna123.xyz
+
+
+2. Load Balancer Types
+-----------------------
+
+#Global Load Balancer
+
+#Regional Load Balancer
+
+   *Network Load Balancer (NLB) / Layer 4 Load Balancer.
+
+   *Application Load Balancer (ALB) / Layer 7 Load Balancer.
+
+3. OSI Layer with Protocols
+----------------------------
+
+7 Application- http/https
+
+6 Presentation
+
+5 Session
+
+4 Transport TCP or UDP
+
+3 Network
+
+2 Datalink
+
+1 Physical
+
+
