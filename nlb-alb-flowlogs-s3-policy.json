@@ -1,0 +1,110 @@
+{
+    "Version": "2012-10-17",
+    "Id": "AWSLogDeliveryWrite20150319",
+    "Statement": [
+        {
+            "Sid": "AWSLogDeliveryWrite",
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "delivery.logs.amazonaws.com"
+            },
+            "Action": "s3:PutObject",
+            "Resource": "arn:aws:s3:::awsaparna123logs/AWSLogs/242201281931/*",
+            "Condition": {
+                "StringEquals": {
+                    "s3:x-amz-acl": "bucket-owner-full-control",
+                    "aws:SourceAccount": "242201281931"
+                },
+                "ArnLike": {
+                    "aws:SourceArn": "arn:aws:logs:us-east-1:242201281931:*"
+                }
+            }
+        },
+        {
+            "Sid": "AWSLogDeliveryAclCheck",
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "delivery.logs.amazonaws.com"
+            },
+            "Action": "s3:GetBucketAcl",
+            "Resource": "arn:aws:s3:::awsaparna123logs",
+            "Condition": {
+                "StringEquals": {
+                    "aws:SourceAccount": "242201281931"
+                },
+                "ArnLike": {
+                    "aws:SourceArn": "arn:aws:logs:us-east-1:242201281931:*"
+                }
+            }
+        },
+        {
+            "Sid": "AWSLogDeliveryWrite",
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "delivery.logs.amazonaws.com"
+            },
+            "Action": "s3:PutObject",
+            "Resource": "arn:aws:s3:::awsaparna123logs/flowlogs/AWSLogs/242201281931/*",
+            "Condition": {
+                "StringEquals": {
+                    "aws:SourceAccount": "242201281931",
+                    "s3:x-amz-acl": "bucket-owner-full-control"
+                },
+                "ArnLike": {
+                    "aws:SourceArn": "arn:aws:logs:us-east-1:242201281931:*"
+                }
+            }
+        },
+        {
+            "Sid": "AWSLogDeliveryWriteNLB",
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "delivery.logs.amazonaws.com"
+            },
+            "Action": "s3:PutObject",
+            "Resource": "arn:aws:s3:::awsaparna123logs/AWSLogs/*",
+            "Condition": {
+                "StringEquals": {
+                    "aws:SourceAccount": "242201281931",
+                    "s3:x-amz-acl": "bucket-owner-full-control"
+                },
+                "ArnLike": {
+                    "aws:SourceArn": "arn:aws:logs:us-east-1:242201281931:*"
+                }
+            }
+        },
+        {
+            "Sid": "AWSLogDeliveryAclCheck",
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "delivery.logs.amazonaws.com"
+            },
+            "Action": "s3:GetBucketAcl",
+            "Resource": "arn:aws:s3:::awsaparna123logs",
+            "Condition": {
+                "StringEquals": {
+                    "aws:SourceAccount": "242201281931"
+                },
+                "ArnLike": {
+                    "aws:SourceArn": "arn:aws:logs:us-east-1:242201281931:*"
+                }
+            }
+        },
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::127311923021:root"
+            },
+            "Action": "s3:PutObject",
+            "Resource": "arn:aws:s3:::awsaparna123logs/ALBlogs/*"
+        },
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::127311923021:root"
+            },
+            "Action": "s3:PutObject",
+            "Resource": "arn:aws:s3:::awsaparna123logs/ALBConnlogs/*"
+        }
+    ]
+}
