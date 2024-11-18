@@ -1,0 +1,81 @@
+2. Load Balancer Types
+-----------------------
+
+#Global Load Balancer
+
+#Regional Load Balancer
+
+   *Network Load Balancer (NLB) / Layer 4 Load Balancer.
+
+   *Application Load Balancer (ALB) / Layer 7 Load Balancer.
+
+3. OSI Layer with Protocols
+----------------------------
+
+7 Application- http/https
+
+6 Presentation
+
+5 Session
+
+4 Transport TCP or UDP
+
+3 Network
+
+2 Datalink
+
+1 Physical
+
+Note:
+*For single loadbalancer we can attach multiple tls certificates. It supports for that
+*We can use single server for multiple target groups.
+
+
+
+Application load balancer(regional):
+--------------------------------
+
+Application Load Balancer (ALB) Layer 7 LB http and https
+
+*SSL Terminaton/Offloading
+
+*http to https redirection
+
+*URL/Path based routing.
+
+*Supporting blue-green and canary-based deployment.
+
+*Web Application Firewall (WAF) Integration.
+
+*Integration with AWS Cognito For Application security and Authentication or Auth.
+
+Access logs:
+Each log contains information such as the time the request was received, the client's IP address, latencies, request paths, and server responses.
+
+Connection logs:
+Each log contains information such as the client's IP address and port, listener port; the TLS cipher and protocol used, TLS handshake latency, connection status, and client certificate details.
+
+HTTPS status codes:
+-------------------
+*Informational responses (100 - 199)
+
+*Successful responses (200 - 299)
+
+*Redirection messages (300 - 399)
+
+
+*Client error responses (400 - 499):
+
+404 not found means you are accessing a resource which dont exists.
+
+403 Forbideen means you dont have access for this resource.
+
+401 Authorization required.
+
+*Server error responses (500 599)
+
+502 Bad Gateway Means LB not able to connect to backend as service/server might be
+
+
+
+
