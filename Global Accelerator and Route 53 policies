@@ -1,0 +1,115 @@
+Global Accelerator:
+-----------------------
+
+Route 53 Load Balancing:
+------------------------
+
+DNS Based Load Balancer, means we cannot select port and protocol.
+
+No ip addresses are involved for route53.
+
+Route53 Routing Policies:
+--------------------------
+  - Failover => One Primary Endpoint and One Secondary Endpoint.
+  - Latency => Reach to nearest endpoint based on customer location.
+  - Weighted => Control traffic based load-balancing weights.
+  - Geolocation => Restrict tarffic based on country.
+  - Geo-Proxuimity based on Lat and Long.
+  - MultiValue.
+  - CIDR Based.
+
+Following is not possible with route53(Similar to Google Map) as its a DNS based LB
+- Cannot have https and also redirection.
+- Cannot have options to select protocol.
+- Cannot select port number.
+
+steps:
+------
+*create an vpc and install servers in three regions like us-east-1(N.Virginina),ap-south-1(Mumbai) and eu-west-1(Ireland) using terraform code.
+Note:Us-server in Virginia region,India-server in Mumbai region and Ireland-server in Ireland region. 
+
+*Go to route 53 and create different records for routing policies for three servers and access the domain names of their individual records.
+
+
+1. Global Accelerator:
+------------------------- 
+*LB at a global level which will allow us to select port and protocol.
+
+*Global Accelerator will give you two static ips after creating that one.we can use that ips anywhere throught world based on your requirement.
+
+*Global Accelerator doesn't do SSL Termination.we cannot use SSL/TLS IN global acceleratpr.if you want use load balancers for every region and generate certificate for that and include that loadbalancers(EITHER NLB OR ALB). to global acceleartor.
+
+*we can install the SSL/TLS certificate either in server level or load balancer level.-->to access the domain in https.
+-----------------------------------------------------------------------------------
+*connect to server us-east-1 server name is US-server
+*sudo su -
+*snap install certbot --classic
+*certbot --nginx
+*give your email address
+*click yes two times
+*it will ask domain name go to route 53 service create an record for your servers.
+*give that domain name in certbot.
+
+Note:Do this process for three servers like Us-server,India-server,and Ireland-server.
+Steps:
+------
+*create an vpc and install servers in three regions like us-east-1(N.Virginina),ap-south-1(Mumbai) and eu-west-1(Ireland) using terraform code.
+Note:Us-server in Virginia region,India-server in Mumbai region and Ireland-server in Ireland region. 
+
+*Go to global accelerator service and create global accelerator.you can take ALB,NLB OR Ec2 servers in that.i used Ec2 server.
+
+*Go to Route 53 service and create an simple routing record for global accelerator and access that domain using VPN from different location.(this will work for only http application)
+
+*if you want to access domain using https.Follow the above process for each server.
+
+*Access the domain using https for global accelerator.
+
+
+
+process:
+---------
+*after all instances running in three regions
+
+Global Accelerator service:
+--------------------------
+*click create accelerator
+*provide name
+*Acceleartor type-standard
+*ip address type-Ipv4
+*then next
+*listeners-->ports:80,443 and protocol:TCP,client affinity:none
+*then next
+*add three endpoints groups-->1.Endpoint group 1-->region:us-east-1,traffic dial:100
+                              2.Endpoint group 2--->region:ap-south-1,traffic dial:100
+                              3.Endpoint group 3-->region:eu-west-1,traffic dial:100
+                              
+*then next
+*Add Endpoint-->1.Endpoint 1-->Endpoint type-->Ec2 instance,Endpoint-->Us-server,weight:128
+                2.Endpoint 2-->Endpoint type-->Ec2 instance,Endpoint-->India-server,weight:128
+                3.Endpoint 3-->Endpoint type-->Ec2 instance,Endpoint-->Ireland-server,weight:128
+                
+*create accelerator
+*after accelerator is created it will give two static ips.
+
+
+Route 53:
+---------
+*Go to this service
+*create an simple routing record for your domain-->name is global.awsaparna123.xyz
+*record type--->A
+*Value/Route traffic to-->Alias to Global Accelerator
+*choose accelarator 
+*click Define simple record
+*click create record
+*access the domain in web browser.(only http access)
+
+
+*To access the domain in https use above process.
+
+
+
+
+                
+
+
+
