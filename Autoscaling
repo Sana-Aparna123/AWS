@@ -1,0 +1,24 @@
+Autoscaling:
+-----------------
+Scaling in AWS.
+
+Vertical Scaling:Increasing the size of the server like cpu,memory etc.
+ t2.micro => t2.large. Need to stop the server to change.
+
+Database Server or File Servers.
+
+Horizontal Scaling:adding number of servers based on requirement.
+ t2.micro + t2.micro + t2.micro + t2.micro + t2.micro
+
+Adding machine => Scaling out
+Removing machine => Scaling in
+
+If you do it automatically, then it's called Auto Scaling.
+
+process:
+----------
+*Create an instance template of your custom AMI.Using that create an autoscaling group and create an domain record in Route 53 for the autoscaling load balancer and access it.To automatically adding and removing instances,configure the autoscaling policies based on cpu utilization of instance.create and alarms for adding instances and removing instances in cloud watch while updating the autoscaling policies.
+*To get notification to your mail while creating an autoscaling groups(information about autoscaling groups).create an topic in SNS service about email notification.
+or
+Create an instance template using your custom AMI. Use this template to set up an Auto Scaling group and configure a Route 53 domain record to point to the load balancer of the Auto Scaling group. Configure Auto Scaling policies based on CPU utilization to automatically add or remove instances. Set up CloudWatch alarms to trigger these scaling actions.
+Enable email notifications for Auto Scaling group events by creating an SNS topic and subscribing to it with your email address.
