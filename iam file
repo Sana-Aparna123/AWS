@@ -1,0 +1,64 @@
+testuser1
+password:testuser1@123
+
+
+testuser2
+password:testuser2@123
+
+https://242201281931.signin.aws.amazon.com/console
+
+
+elasticbeanstack password:
+username:adminappu
+password:adminappu123
+
+
+*To whom will uses the IAM.
+
+1.Users--Admins/Developers/Apps - Console/CLI
+
+2.Roles
+
+Used by AWS Services to Access other AWS Services. EC2 Role will allow access S3 bucket from EC2 machine without any access keys. Users can also assume role to manager other accounts.
+
+Policies Roles. Permissions in JSON Format. Policies can be applied to User, User Groups and Roles.
+
+testuser1
+
+testuser2
+
+testvm1 -> Owner = testuser1
+
+testvm2 -> Owner = testuser2
+
+Design a IAM Policy for both users.
+
+1. testuser1 must only stop, start & reboot testvm1 only.
+
+2. testuser2 must only stop, start & reboot testvm2; only
+Amazon EC2FullAccess
+
+awsb65-testuser1-policy -> testuser1 must only stop, start & reboot testvm1 only.
+
+awsb65-testuser2-policy: -> testuser2 must only stop, start & reboot testvm2 only.
+
+Amazon EC2ReadOnlyAccess
+
+*policies are two types:
+--------------------------
+1.Identity based policies--->applied to Users,Groups and Roles
+These policies are attached to identities, such as users, groups, or roles, to grant them permissions.Identity-based policies can be managed policies or inline policies.
+
+Identity Based policies are three types:
+1.AWS managed policies-->These are built in policies which can be managed by aws.But some policies won't satisfy our requirements that's why we used customer managed policies.
+2.Customer managed policies-->we have to design policies based on requirement.It can be visual or json.these 
+3.Inline policies-->
+
+2.resource based policies:
+These policies are attached to resources, such as an Amazon S3 bucket, to specify permissions for specific actions.
+
+
+
+
+*
+
