@@ -1,0 +1,44 @@
+3.VPC Detail Creation.
+----------------------------
+Class 3:
+
+1. What is Virtual Private Cloud (VPC)?
+   VPC is a Logical Network Boundry which provides network isolation. Means Virtual machine since diffrent VPC's dont communicate among   each other.
+
+Another cloud network services:
+*Azure Virtual Network or VNET
+
+*Google VPC
+
+2.Create VPC and Linux machine in a more detail manner?
+
+1.Create VPC with Address Space 10.65.0.0/16 -->Regional Resource.
+
+Enable DNS Hostnames
+
+2. Public-Subnet-1 10.65.1.0/24 us-east-1a
+
+Public-Subnet-2 10.65.2.0/24 us-east-1b
+
+Public-Subnet-3 10.65.3.0/24 us-east-1c
+
+Enable Automatic Public IP Assignment.
+
+3. Create a Internet Gateway and attach it to VPC.
+
+4. Create a New Route Table and attach subnets. Also add 0.0.0.0/0 to IGW.
+
+AWSB65-Public-Subnet-1 10.65.1.0/24
+
+5.Deploy an Amazon Linux 3 machine.
+
+
+
+Note:
+*when create an subnet so the default route table will be created in subnet.
+*if you enable the auto assign public ip for every subnet.so when you deploy a server it will asssign one public ip for your server.
+*if you won't enable the DNS hostnames when you create an instance.it won't give public IPV4 DNS to your server.
+*whenever you create an route table one default "local route" entry will bw added automatically in route table.It will allow communication only inside of vpc within diffferent subnets. 
+*if you won't add subnets in subnet associations in route table.The request of your instance of that subnets will route the traffic to default route table.
+
+
