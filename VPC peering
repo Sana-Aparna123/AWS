@@ -1,0 +1,38 @@
+1.VPC Peering
+---------------
+
+*To establish communication between two vpcs we used vpc peering.By default two vpcs doesn't communicate with each other.
+*we can do vpc peering in same account and in different account.
+*we can do vpc peering in same region or different region.
+
+conditions of vpc peering:
+------------------------
+*VPC's which want to be part of peering must have the same or overlapping CIDR Blocks.
+*VPC Peering don't support transit.The connection between two vpcs should be point to point type.
+
+Task:
+----
+*Create an Amazon linux 2023 template.using that deploy an nginx server in az in three different vpcs like vpc1,vpc2 and vpc3.
+  vpc1 -->10.60.0.0/16
+  vpc1-public-subnet1-->10.60.1.0/24-->deploy nginx server with name vpc1-instance using template.
+  
+  vpc2 -->10.61.0.0/16
+  vpc2-public-subnet1-->10.61.1.0/24-->deploy nginx server vpc2-instance using template.
+  
+  vpc3 -->10.62.0.0/16
+  vpc1-public-subnet1-->10.62.1.0/24-->deploy nginx server vpc3-instance using template.
+  
+*connect to the three instances either using the EC2 connect or SSH client with the help of .pem key
+*using ping command with private ips of that three servers.Try to ping the among those  three servers.It won't work
+
+*create an vpc peering for those vpcs.u will get three connections.
+  vpc1-vpc2
+  vpc2-vpc3
+  vpc1-vpc3
+  
+*After establish a connection among vpcs.you have add the route entry or to update the route tables of three vpcs.
+vpc1-public-routetable-->configure route of vpc2 with range 10.61.0.0/16 and vpc3  with range 10.62.0.0/16-(destinations)-target is peering connection
+vpc2-public-routetable-->configure route of vpc1 with range 10.60.0.0/16 and vpc3  with range 10.62.0.0/16-(destinations)-target is peering connection
+vpc3-public-routetable-->configure route of vpc1 with range 10.60.0.0/16 and vpc2  with range 10.61.0.0/16-(destinations)--target is peering connection
+
+*Then try to ping among instances using private ips of instances.It will work
