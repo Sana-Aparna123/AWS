@@ -1,0 +1,41 @@
+Public and Private subnets-NAT Gateway
+------------------------------------------
+
+1.Public and Private Subnets
+-----------------------------
+*If any subnet will have internet access we called public subnet.
+*if any subnet doesn't have internet acess we called it has private subnet.
+
+2.Elastic Ip and NAT Gateway
+---------------------------
+*NAT means NEtwork Address Translation.So the NAT Gateway takes the private ips of instances whenever instances sends an request to NAT and convert it to public ip and sends the request to internet.while creating the NAT gateway it will ask public subnet and elastic ip.
+
+*Elastic ip is an constant ip.whenever we stop,start,reboot the server the public ipv4 of that server will be change. To overcome this issue we have an elastic ip.If you attach the elastic ip to the server even when you stop,start and reboot the server also the public ipv4 of server will be remain constant.
+
+Task:
+-----
+*Create an VPC with name AWSB65 and range is 10.65.0.0/16
+*Create an three public subnets with name and ranges  like AWSB65-Public-Subnet1-->10.65.1.0/24,AWSB65-Public-Subnet2-->10.65.2.0/24
+and AWSB65-Public-Subnet3-->10.65.3.0/24
+*Create an three private instances with name and ranges like AWSB65-Pvt-Subnet1-->10.65.10.0/24,AWSB65-Pvt-Subnet2-->10.65.20.0/24
+and AWSB65-Pvt-Subnet3-->10.65.30.0/24
+*Create an IGW and attach to the vpc
+*Create an public and private routes for both public and private subnets.Add the entry of igw in public route table.
+*Deploy nginx server in each public subnets and private subnets.
+*Access the private servers (doing bation host or jump jost) through public servers while ssh into private servers in public server using .pem file.if you run ping www.google.com so your private serevr cannot communicate with internet.you need to deploy NAT Gateway.
+*Create an NAT Gateway by giving public subnet and elastic ip and add the entry of NAT in routes of route table.
+*create and target group and add all the private subnets in the target group
+*create an Network Load Balancer(NLB),thier add the listener TCP with port 80 and add the target group.Access the DNS of NLB in browser.
+
+*try to install the packer tool from your any private server.It will download the tool.
+
+note:
+*While deploying the nginx server for private instances "disable" the public ipv4
+*If customer wants to communicate to your private instances from out side through NLB they will communicate.That traffic which comes load balancer so we called application traffic.
+*If your private servers wants to download any files or any thing from internet through NAT gateway only possible.So that traffic we called management traffic. 
+
+
+
+
+
+
