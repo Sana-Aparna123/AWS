@@ -1,0 +1,37 @@
+GodaddyDNS-Route53Zone
+------------------------------------
+Security-SSL/TLS Certificate-->we need domain 
+purchasing the domain from godaddy -->my domain name is awsaparna123.xyz
+
+*Go to AWS Route 53 service and created hosted zone and create a record using our domain name 
+
+*so godaddy dont know the aws whenever a user request to godaady.It should be forward the request to aws for that we will configure the godaddy DNS records in nameservers with aws dns records
+
+example:
+ns-59.awsdns-07.com
+ns-1199.awsdns-21.org
+ns-605.awsdns-11.net
+ns-1818.awsdns-35.co.uk
+
+*Go to EC2 create an instance using launch template and deploy nginx server in it.like that create two instances
+
+*Take the public ip of instance and go to Route 53 service and create an simple routing record with configuring the record name,and record type,route the traffic to 'public ipv4'(paste that ip there) of instance and then create a record.repeat this process for second instance
+
+record-1:  for instance1
+-----------
+superstar.awsaparna123.xyz
+
+record-2: for instance2
+--------
+megatstar.awsaparna123.xyz
+
+
+*Try to hit the domains names like http://superstar.awsaparna123.xyz and  http://megatstar.awsaparna123.xyz on browser.The nginx sholud be displayed in browser.
+
+note:
+-----
+To check dns is working or not.Go to terminal and run the commands like
+*nslookup  superstar.awsaparna123.xyz
+*nslookup  megatstar.awsaparna123.xyz
+
+*to trouble shoot dns problems we have google dig tool.
