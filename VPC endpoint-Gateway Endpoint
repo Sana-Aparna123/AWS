@@ -1,0 +1,77 @@
+VPC Endpoints
+-----------------
+Endpoints is used to Acess the aws cloud or acess the all services in aws cloud without using Internet Gateway.Outside of services we cannot access through endpoints.
+
+Endpoints are two types:
+1.Gateway Endpoint  -->used for s3 and DynamoDB services
+2.Interface Endpoint
+
+
+Task:
+----
+*Create a role with name "awsb65-ec2-session-manager-role" using permissions like giving AmazonDynamoDBFullAccess,AmazonEC2RoleforSSM,
+AmazonEc2FUllAccess,AmazonS3FullAccess,AmazonSSMFullAccess,AmazonSSMManagedInstanceCore,CloudWatchAgentAdminPolicy,CloudWatchAgentServerPolicy,
+CloudWatchlogsFullAccess and SecretManagerReadwrite.
+
+*After creating the role go to the "awsb65-ec2-session-manager-role" role  and edit the Trust relationships.whatever we add in the principal so that all services can access 
+this role.so that we mention in trust policies.
+
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "Service": [
+                    "ecs-tasks.amazonaws.com",
+                    "s3.amazonaws.com",
+                    "batchoperations.s3.amazonaws.com",
+                    "ec2.amazonaws.com",
+                    "lambda.amazonaws.com",
+                    "ecs.amazonaws.com",
+                    "pods.eks.amazonaws.com",
+                    "iam.amazonaws.com"
+                ]
+            },
+            "Action": "sts:AssumeRole"
+        }
+    ]
+}
+
+*Create an Public instance while creating attach the iam role like "awsb65-ec2-session-manager-role" to instance.
+*create an private instance  attach the role and  disable the public ip to that server.
+*login to the public instance through ssh client and run the below commands.
+ >  wget https://releases.hashicorp.com/packer/1.11.2/packer_1.11.2_linux_amd64.zip
+ > mv packer_1.11.2_linux_amd64.zip  packer_1.zip
+ > ll
+ > aws --version
+ > aws s3 ls -->it will list all files beacuse we attach the role to our public instance.
+ > aws s3 cp packer_1.zip s3://awsaparna123.xyz/packer_1.zip  ->file will be copy into bucket
+ > nano key.pem -->copy the my-key.pem file private key into key.pem
+ > chmod 400 key.pem
+ > ssh -i key.pem ec2-user@10.65.10.100-->private instance ip
+ 
+ 
+*login into private server and run below commands
+ > aws s3 ls -->it wont work because we dont have internet access so s3 unable to connect with s3 API 
+ 
+ > aws s3 cp  s3://awsaparna123.xyz/packer_1.zip packer_1.zip    -->copy the object from bucket to private instance cli but it wont work    if we use nat which is so cost to maintain so to resolve this we use "gateway endpoint".Using this we can communicate to s3 inside of aws cloud .
+
+
+*Go to vpc and click endpoints and then create an gateway endpoint for s3 service in your region.while configuring the endpoint choose your vpc and both public and private route tables and click create endpoint
+
+
+*if you go to inside of private instance and run the command
+  > aws s3 cp  s3://awsaparna123.xyz/packer_1.zip packer_1.zip  -->it will retrieve or download the file from bucket to private instance cli
+  >ll -->it will list the packer file
+  
+
+
+
+Note:
+-----
+*after creating the gateway endoint for s3 it will add an entry like "pl-63a5400a" in both public and private route table automatically.Because of this entry so the file is downloaded from s3 bucket to private instance cli.
+
+
+
+
+
