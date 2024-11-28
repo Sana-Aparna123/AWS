@@ -1,0 +1,67 @@
+1. terraform init: Initializes the directory and downloads provider plugins.
+
+2.terraform plan: Creates an execution plan showing the actions Terraform will take.
+
+3.terraform apply: Applies changes to achieve the desired state, creating, updating, or deleting resources.
+
+4.terraform destroy: Removes all resources defined in the configuration.
+
+5.terraform validate: Checks the syntax and integrity of the configuration files.
+
+6.terraform fmt: Formats configuration files to a standard style.
+
+7.terraform refresh: Updates the state file with the latest infrastructure information.
+
+8.terraform show: Displays information about the state file or specific resources.
+
+9.terraform state: Manages and manipulates the state file.
+
+10.terraform output: Displays the values of output variables from the configuration.
+
+11.terraform workspace: Manages workspaces for different environments.
+
+12.terraform login: Authenticates with remote services like Terraform Cloud.
+
+13.terraform providers: Lists providers used and their versions.
+
+14.terraform graph: Generates a visual representation of resource dependencies.
+
+15.terraform taint: Marks a resource for recreation in the next apply.
+
+16.terraform untaint: Removes the taint from a resource.
+
+17.terraform import: Imports existing resources into Terraform management.
+
+18.terraform workspace list: Lists available workspaces.
+
+19.terraform workspace new: Creates a new workspace.
+
+20.terraform workspace delete: Deletes a workspace.
+
+21.terraform state list
+
+22.terraform.state show,  
+ 
+23.terraform state rm 
+
+24.terraform state mv.
+
+
+list                List resources in the state
+    mv                  Move an item in the state
+    pull                Pull current state and output to stdout
+    push                Update remote state from a local state file
+    replace-provider    Replace provider in the state
+    rm                  Remove instances from the state
+    show                Show a resource in the state
+
+
+
+
+
+
+
+
+
+
+
