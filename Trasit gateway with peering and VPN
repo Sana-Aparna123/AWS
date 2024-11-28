@@ -1,0 +1,230 @@
+Transit Gateway:
+--------------------
+
+*Trasit Gateway will act as central hub or router,with the help of trasnit gateway we can do vpc peering.
+*Using AWS transit gateway we connect the on prem to cloud with the help of vpn.
+
+Task:
+----
+1.Create three vpcs in aws and deploy an nginx server in three vpcs in their subnets.
+  vpc1-->10.63.0.0/16,vpc1-subnet-->10.63.1.0/24,vpc1-windows-server-->10.63.1.35
+  vpc2-->10.64.0.0/16,vpc2-subnet-->10.64.1.0/24,vpc2-windows-server-->10.64.1.107
+  vpc3-->10.65.0.0/16,vpc3-subnet-->10.65.1.0/24,vpc3-windows server-->10.65.1.183
+  
+2.Create an Trasit Gateway by giving name AWSB65-TGW
+
+3.Create a customer gateway by adding the VNG public ip of azure with name cgw1. 
+
+3.After Trasit gateway is created we have to create attachments for vpc's so go to trasit gateway attachments and click create by giving the following details
+
+VPN-ATTACHMENT:
+---------------
+name:VPN-ATTACHMENT
+Transit gateway ID: give the id of AWSB65-TGW
+Attachment type:VPN
+Customer Gateway:Existing
+Customer Gateway ID:cgw1 id
+Routing options:static 
+click create trasit gateway attachment
+
+63-ATTACH:
+------------
+name:63-ATTACH
+Transit gateway ID: give the id of AWSB65-TGW
+Attachment type:VPC
+VPC ID: give the id of vpc1
+Subnet ID:vpc1-subnet
+click create an transit gateway attachment
+
+
+64-ATTACH:
+------------
+name:64-ATTACH
+Transit gateway ID: give the id of AWSB65-TGW
+Attachment type:VPC
+VPC ID: give the id of vpc2
+Subnet ID:vpc2-subnet
+click create an transit gateway attachment
+
+
+65-ATTACH:
+------------
+name:65-ATTACH
+Transit gateway ID: give the id of AWSB65-TGW
+Attachment type:VPC
+VPC ID: give the id of vpc3
+Subnet ID:vpc3-subnet
+click create an transit gateway attachment
+
+
+*go to transit gateway route tables where when you create an trasit gateway on that time one deafult route table is created.select that one check propagations is configured or not and add entries in routes then only you can able to communicate among vpc's.
+
+
+Do this process in remmina:
+---------------------------
+*login to vpc1-windows-server and open powershell test it 
+ > ping 10.64.1.107    
+ 
+ > ping 10.65.1.183
+ 
+*login to vpc2-windows-server and open powershell test it
+ > ping 10.63.1.35    
+ 
+ > ping 10.65.1.183
+ 
+*login to vpc3-windows-server and open powershell test it
+ > ping 10.63.1.35   
+ 
+ > ping 10.64.1.107  -->it wont work so you have to update the route table
+ 
+*go to vpc1 route table edit routes
+  # destination-->10.64.0.0/16,target->trasit gateway id
+  # destination-->10.65.0.0/16,target->trasit gateway id
+  # destination-->192.168.0.0/16,target->trasit gateway id   -->this is azure vpc range
+  click save
+
+*go to vpc2 route table edit routes
+  # destination-->10.63.0.0/16,target->trasit gateway id
+  # destination-->10.65.0.0/16,target->trasit gateway id
+  # destination-->192.168.0.0/16,target->trasit gateway id 
+  click save
+  
+*go to vpc3 route table edit routes
+  # destination-->10.63.0.0/16,target->trasit gateway id
+  # destination-->10.64.0.0/16,target->trasit gateway id
+  # destination-->192.168.0.0/16,target->trasit gateway id 
+  click save
+ 
+
+  
+Azure:
+-----
+*creating an resource group with name "AWSB65"
+*creating an virtual network(VNET) with name VNET1,region EastUS and range 192.168.0.0/16 and subnet with range 192.168.1.0/24
+*After VNET1 is created, click on VNET1 and go to subnets and add an Gateway subnet with starting address: 192.168.10.0     -->whatever ips range we gave in gateway network.this ip addresses ranges will be used by virtual Network Gateway(VPG means VPN)  while creating the VPG
+*Go to Virtual network gateways and create an vitual network gateway with configuring the below details and click review and create and then create.                 -->It will take sometime like 15 to 20 mins to deploy it.
+  name:VNG1
+  Region:EastUS
+  Gateway type:VPN
+  SKU:VpnGw1
+  Generation:Generation1
+  virtual network:VNET1
+  public ip address:create new
+  public ip address name:VNG1-PIP1
+  Enable active-active mode:Disabled
+  
+  
+*Create an windows virtual machine  with below configuration details
+  resource group:AWSB65
+  name:WINSVR1
+  region:East US
+  image:Windows server 2022 datacenter-Azure Edition -x64 Gen2
+  Administrator account: give username and password of azure account.
+  select inbound ports:RDP(3389)
+  disks-->os disk type:Standard SSD
+  Networking-->virtaul netowrk:VNET,Subnet:default(192.168.1.0/24)
+  public ip: (new)AZWINSVR1-ip
+  Click management,monitoring and then review and create and click create
+  
+  
+  
+*go to aws vpc service--open VPN connections--click on it -->in tunnel details it will have two ip addresses copy it in notepad.thier we have download configuration file give click on it and give details vendor:Cisco Systems,Inc. platform ISR Series Routers and then click on Download and save it in your local system.open that file you will have ip adress and key in line 53 and line 200 note down in note pad .see below
+    line 53 --> pre-shared-key address 35.171.132.223 key 1RIfLypDvx42jrVS.L1Kl5br1czMwv16
+    line 200---> pre-shared-key address 50.19.121.32 key IH8cjtZ.kPj.rO5W55crpw8Qzpsy7Z79
+    
+  
+*Go to azure and go to local network gateways(is like customer gateways in aws,we will configure the aws vpn connections details in azure).
+
+*create local network gateways by configuring the below details.(these details are which we have download configuration file)
+LGW1:
+-----
+    #Resource group:AWSB65
+    #Region:East US
+    #Name:LGW1
+    #Endpoint:ip address
+    #ip address: 35.171.132.223  -->line 53 ip adress in configuration file
+    #Address space:10.63.0.0/16 
+                   10.64.0.0/16
+                   10.65.0.0/16 and then click create -->if its completes deployment then only create LGW2
+LGW2:
+-------
+    #Resource group:AWSB65
+    #Region:East US
+    #Name:LGW2
+    #Endpoint:ip address
+    #ip address: 50.19.121.32   -->line 200 ip adress in configuration file
+    #Address space:10.63.0.0/16 
+                   10.64.0.0/16
+                   10.65.0.0/16 and then click create
+                   
+                   
+*Go to VNG1 and click connection and create the connections by giving the follwing configurations (for two tunnels of our AWS-TO-AZURE) connection.One connection is enough but we have two tunnels details for testing purposes creating two conections.
+  Tunnel1: if tunnel one id deployed then create tunnel 2 connection
+  ------
+ Basics:
+    #Resource group:AWSB65
+    #Connection type:Site-to-Site(IPsec)
+    #name:Tunnel1
+    #Region:East US
+    
+ Settings:
+    #Virtual Network Gateway :VNG1
+    #Local Network Gateway : LGW1
+    #authentication method:Shared key(PSK)
+    #Shared key(PSK):1RIfLypDvx42jrVS.L1Kl5br1czMwv16 (give line 53 password of configuration file)
+    click review and create and click create
+  
+  
+  Tunnel2: 
+  ------
+ Basics:
+    #Resource group:AWSB65
+    #Connection type:Site-to-Site(IPsec)
+    #name:Tunnel2
+    #Region:East US
+    
+ Settings:
+    #Virtual Network Gateway :VNG1
+    #Local Network Gateway : LGW1
+    #authentication method:Shared key(PSK)
+    #Shared key(PSK):IH8cjtZ.kPj.rO5W55crpw8Qzpsy7Z79 (give line 200 password of configuration file)
+    click review and create and click create          --->both tunnels should be up	
+    
+    
+go to remmina:
+-------------
+*login into azure server using azure ip
+*open powershell and run the commands
+> ping 10.63.1.35
+> ping 10.64.1.107
+> ping 10.65.1.183
+
+
+
+note:
+-----
+*Eventhough if you update route tables in aws for three vpcs and if u get tunnel1 and tunnel2 up also still the communication from aws to azure won't work until unless you updated the entry on routes in trasit gateway route table.
+
+*go to trasit gateway route table-->create an static route for vpn connection by givimg 192.168.0.0/16 and VPN-ATTACHMENT id and then click create.so it will take time beacause the routes have to be work and if you ping each other from aws to azure.It will work
+  	
+*By default in trasit gateway route table vpc attchments are added in routes and for vpn attachment we are update the routes.
+
+
+**if you want you can share the trsit gateway to another aws account.Using Resource Acess Manger service in aws.we can share our trasit gateway to other accounts so for that we have to create a resource share by configuring the trasit gateway id and aws account id details.
+    
+    
+    
+
+
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+    
+  
+  
