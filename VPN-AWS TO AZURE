@@ -1,0 +1,220 @@
+9.Virtual Private Gateway-VPN
+--------------------------------
+VPN which is internet security service that encrypts data and masks ips to create private network connection between devices or between device to cloud or between clouds.
+types of vpn:
+------------
+1.point-to-point(between two devices)
+2.point-to-site(P2S)-->between device and cloud
+3.site-to-site-->between clouds
+
+Task:
+------
+*In this task i am establishing an vpn connection between aws and azure.which is an site to site vpn.so the vms which is present in two clouds should be communicate between with private ips over the internet.
+
+*i learned how to manage user accounts using Active directory in windows
+
+Azure:
+-----
+*creating an resource group with name "AWSB65"
+*creating an virtual network(VNET) with name VNET1,region EastUS and range 192.168.0.0/16 and subnet with range 192.168.1.0/24
+*After VNET1 is created, click on VNET1 and go to subnets and add an Gateway subnet with starting address: 192.168.10.0     -->whatever ips range we gave in gateway network.this ip addresses ranges will be used by virtual Network Gateway(VPG means VPN)  while creating the VPG
+*Go to Virtual network gateways and create an vitual network gateway with configuring the below details and click review and create and then create.                 -->It will take sometime like 15 to 20 mins to deploy it.
+  name:VNG1
+  Region:EastUS
+  Gateway type:VPN
+  SKU:VpnGw1
+  Generation:Generation1
+  virtual network:VNET1
+  public ip address:create new
+  public ip address name:VNG1-PIP1
+  Enable active-active mode:Disabled
+  
+  
+*Create an windows virtual machine  with below configuration details
+  resource group:AWSB65
+  name:WINSVR1
+  region:East US
+  image:Windows server 2022 datacenter-Azure Edition -x64 Gen2
+  Administrator account: give username and password of azure account.
+  select inbound ports:RDP(3389)
+  disks-->os disk type:Standard SSD
+  Networking-->virtaul netowrk:VNET,Subnet:default(192.168.1.0/24)
+  public ip: (new)AZWINSVR1-ip
+  Click management,monitoring and then review and create and click create
+  
+  
+  
+  
+AWS: Active directory which is an authenticator used to authenticate id and password and managing the users and overall network resources.
+-----
+*create an vpc with name "AWSB65" and range 10.65.0.0/16 and subnet with name AWSB65-Public-subnet 10.65.3.0/24
+*launch an windows server with below configuration details and click launch instance  -->private ip 10.65.3.151
+  name:WIN_AD_SERVER
+  AMI:windows-->Microsoft Windows Server 2022 base
+  instance type:t3.large
+  keypair:my-key
+  vpc:AWSB65 
+  subnet:AWSB65-Public-subnet
+  Auto-assign public ip :enable
+  Security group:Allow All Traffic
+  
+*After instance is created  and click on connect -->RDP client-->get password-->upload private key(my-key)-->decrypt --it will give password                       (using this credentials we have to login to the windows system using remmina tool)
+  
+
+*go to terminal install "remmina".
+*after remmina is installed run the command in terminal
+ >remmina   -->it will open console where we can provide the instance dns public ip and then click enter after that it will ask username and password.Give that credentials and then click ok
+ Username:Administrator
+ password:private key decrypt password
+ 
+ 
+*After logged into windows server.go to windows powershell and run the below commands.
+  > ipconfig /all  -->it will show the ipv4 address of system and DNS server  -->i need to change the dns server(10.65.0.2) to my instance server(10.65.3.151)
+  >ncpa.cpl  -->it will open network connections
+       *select Ethernet3
+       *go to properties
+       *select internet Protocol Version 4 (TCP/IPV4)
+       *click use the following dns servers:
+               Preferred DNS Server:10.65.3.151
+               Alternate DNS Server:10.65.0.2
+       *and then click ok and close all tabs
+       
+  >ipconfig /all -->your dns server is modified with instance dns ip
+  
+  
+*To install active directory .In search bar choose "Server Manager"
+     #click Manage-->choose Add roles and features
+     #click next,next,next  -->first we have enable role and then configure the active directory
+     #Their search for option Active Directory Domain services put checkmark on it and then click on next
+     #their search for option Telnet Client and then click on next,next and click on install  
+     #after iit is installed we will get warning symbol in yellow colour clieck on it and then click on "promote this server to domain controller" 
+     #click add a new forest
+     #it will ask your domain name :awsaparna123.xyz and then clieck next
+     #it will ask for password give any random password and click on next until you get NetBIOS host name it will only check(using that name is any domain present or not)and configure that name and then click on next 
+     # and then click install -->so the system will reboot
+     
+     
+*Go to aws and create an Virtual private gateways with name VPG1 and then click create.   
+*After VPG1 created.click on it -->actions-->attach to vpc-->attach it to your vpc (AWSB65).
+
+
+
+To configure both aws and azure to communiacte follow these steps:
+
+*copy the public ip address of VNG1 in azure and come to aws click on customer gateways.
+*create an  customer gateway with below details
+   #name:AZ-VNG
+   #ip address-paste the ip address of VNG1 and then click create an customer gateway.
+   
+*to establish a connection from aws to azure.clieck one site-to-site connections in aws and click on create an vpn connection provide the below details
+   #Name:AWS-TO-AZURE
+   #Target gateway type:Virtual private gateway
+   #Virtual private gateway:select VPG1
+   #Customer gateway ID:select  AZ-VNG
+   #routes traffic:static  -->give 192.168.0.0/16 -->azure vpc range
+   #click create vpn connection
+   
+*copy the WIN_AD_SERVER private ip in aws and go to azure VNET1,their we have an option called DNS Servers click on it.-->choose custom--> ipaddress: 10.65.3.151
+             8.8.8.8
+             8.8.4.4      -->add these three DNS servers one by one    
+     
+ 
+
+ 
+*Go to terminal -->remmina and again try to login to aws server like WIN_AD_SERVER now give the credentails like 
+   username:administrator@awsaparna123.xyz
+   password:my-key decrypt passoword
+
+*after loging into WIN_AD_SERVER go to windows powershell
+ >whoami   -->awsparna123/administrator
+ >ipconfig /all -->when you system is reboot so the dns server might be change check that reconfifure it using above process.
+ >ncpa.cpl -->properties-->ipv4-->change dns domain names   -->dont do this process in azure so it will disconnected
+ >ipconfig /all
+ >firewall.cpl   ->every windows server have defalut firewall disable it otherwise ping will not work
+ 
+*To check active directory is installed or not.click on search bar and search windows administration tools-->users and computers-->it will show the details of that-->click on users and create an user with username and password.then try to login on azure vm using this credentials.It should be work.Before do this in azure vm Login to azure vm here go to powershell and run the commands
+    > sysdm.cpl  -->open system properties,thier we have VM name (AZWINSVR1) and workgroup (WORKGROUP) .so change the domain name.click change-->domain-->awsaparna123.xyz click on ok .It will ask id and password, enter the username and password that we created before in active directory of aws instance and click on ok and close and then restart the vm. 
+ 
+ 
+*go to aws vpc service--open VPN connections--click on AWS-T-AZURE connection -->in tunnel details it will have two ip addresses copy it in notepad.thier we have download configuration file give click on it and give details vendor:Cisco Systems,Inc. platform ISR Series Routers and then click on Download and save it in your local system.open that file you will have ip adress and key in line 53 and line 200 note down in note pad .see below
+    line 53 --> pre-shared-key address 35.171.132.223 key 1RIfLypDvx42jrVS.L1Kl5br1czMwv16
+    line 200---> pre-shared-key address 50.19.121.32 key IH8cjtZ.kPj.rO5W55crpw8Qzpsy7Z79
+    
+
+
+*Go to azure and go to local network gateways(is like customer gateways in aws,we will configure the aws vpn connections details in azure).
+
+*create local network gateways by configuring the below details.(these details are which we have download configuration file)
+LGW1:
+-----
+    #Resource group:AWSB65
+    #Region:East US
+    #Name:LGW1
+    #Endpoint:ip address
+    #ip address: 35.171.132.223
+    #Address space:10.65.0.0/16 and then click create -->if its completes deployment then only create LGW2
+    
+LGW2:
+-------
+    #Resource group:AWSB65
+    #Region:East US
+    #Name:LGW2
+    #Endpoint:ip address
+    #ip address: 50.19.121.32
+    #Address space:10.65.0.0/16 and then click create
+    
+    
+*Go to VNG1 and click connection and create the connections by giving the follwing configurations (for two tunnels of our AWS-TO-AZURE) connection.One connection is enough but we have two tunnels details for testing purposes creating two conections.
+  Tunnel1: if tunnel one id deployed then create tunnel 2 connection
+  ------
+ Basics:
+    #Resource group:AWSB65
+    #Connection type:Site-to-Site(IPsec)
+    #name:Tunnel1
+    #Region:East US
+    
+ Settings:
+    #Virtual Network Gateway :VNG1
+    #Local Network Gateway : LGW1
+    #authentication method:Shared key(PSK)
+    #Shared key(PSK):1RIfLypDvx42jrVS.L1Kl5br1czMwv16 (give line 53 password of configuration file)
+    click review and create and click create
+  
+  
+  Tunnel2: 
+  ------
+ Basics:
+    #Resource group:AWSB65
+    #Connection type:Site-to-Site(IPsec)
+    #name:Tunnel2
+    #Region:East US
+    
+ Settings:
+    #Virtual Network Gateway :VNG1
+    #Local Network Gateway : LGW1
+    #authentication method:Shared key(PSK)
+    #Shared key(PSK):IH8cjtZ.kPj.rO5W55crpw8Qzpsy7Z79 (give line 200 password of configuration file)
+    click review and create and click create          --->both tunnels should be up	
+  	
+    
+
+
+*using remmina login to the azure vm using azure public ip in remmina.After logging into azure vm.Go to powershell and run the commands
+   >ipconfig /all
+   >firewall.cpl -->disable the azure firewall
+   >hostname 
+   >ping 10.65.3.151 -t  -->won't work 
+   
+   
+*using remmina login to the aws instance using public dns ip in remmina.After logging into aws server.go to powershell and run command
+   >ping 192.168.1.4    -t   -->won't work beacause when you create any connection in aws you have to update the route table then only it will work.
+   
+*go to "AWSB65" vpc and update the route table with destination :192.168.0.0/16 and and target Virtual private gateway and then save it.After that the ping command will work means we can able to communicate from aws to azure. 
+   
+   
+
+note:
+*To connect to RDP.I installed remmina tool which helps to connect to the windows systems
+*Only one VPG we can able to attach only one server.
+
+
