@@ -216,5 +216,17 @@ LGW2:
 note:
 *To connect to RDP.I installed remmina tool which helps to connect to the windows systems
 *Only one VPG we can able to attach only one server.
+*FQDN-->Fully qualified domain name
+
+
+decommission:
+-------------------
+*delete vpn connection AWS-TO-AZURE in aws.
+*VNG1 in azure-->delete both tunnel1 and tunnel2
+*terminate aws server WIN_AD_SERVER
+*Delete the Resource Group Directly in Azure.
+*detach the VPG1 in aws and then delete it.
+*delete customer gateways in aws
+
 
 
