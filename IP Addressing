@@ -1,0 +1,100 @@
+4.IP Addresses.
+--------------------
+1. IP Addressing
+
+2. Subnetting
+
+IPv4: 0.0.0.0 to 255.255.255.255 32-bit- IANA
+
+Class A: 1.0.0.0 to 126.255.255.255
+
+Private: 10.0.0.0 to 10.255.255.255
+
+Class B: 128.0.0.0 to 191.255.255.255
+
+Private: 172.16.0.0 to 172.31.255.255
+
+Class C: 192.0.0.0 to 223.255.255.255
+
+Private: 192.168.0.0 to 192.168.255.255
+
+Class D: 224.0.0.0 to 239.255.255.255
+
+Class E: 240.0.0.0 to 255.255.255.255
+
+IPv6: fe80::1d8a:bb92:abaf:d87d 128-bit
+
+Network Address Translation (NAT)
+
+Source Address Traslation(SNAT)
+
+10.65.0.0/16 VPC Address Space, means blocking a range of IP Addresses.
+
+32-bit
+
+10.1.1.100
+ 8 8 8  8
+
+8 bits calcualtion
+---------------------
+000 - 1
+
+001 - 2
+
+010 - 4
+
+011 - 8
+
+100 - 16
+
+101 - 32
+
+110 - 64
+
+111 - 128
+
+
+10.0.0.0/8 => 1,67,77,216
+
+255.0.0.0  -->subnet mask
+
+10.0.0.0/9 => 8,388,608
+
+255.128.0.0
+
+10.0.0.0/10 => 43194,304
+
+255.192.0.0
+
+10.0.0.0/15 => 130000
+
+10.0.0.0/16 => 65536
+
+10.0.0.0/24 => 256 IP Addresses 255.255.255.0
+
+AWSB65-VPC => 10.65.0.0/16 => 65536
+
+AWSB65-Public-Subnet-1 => 10.65.1.0/24 - 265 ips
+
+AWSB65-Public-Subnet-2 => 10.65.2.0/24 - 256 ips
+
+AWSB65-Public-Subnet-3 => 10.65.3.0/24 - 256 ips
+
+10.65.1.0/24-->if we take the ips in this also 5 ips will be reserverd
+
+Network ID 10.65.1.0
+
+Broadcast ID 10.65.1.255
+
+10.65.1.1,10.65.1.2 and 10.65.1.3-->these three aws will use internally.
+
+
+If you have an requirement like this use david subnet calculator
+
+WebServers -10 -->10.65.1.0/27 -->10.65.1.4 to 10.65.1.30
+
+AppServers -20 --->10.65.1.32/27 --->10.65.1.38 to 10.65.1.62
+
+DBServers  -30 --->10.65.1.64/26 --->10.65.1.65 to 10.65.1.126
+
+
