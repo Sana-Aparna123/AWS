@@ -1,0 +1,211 @@
+S3 Service:
+--------------
+*S3 is an object storage service-->Similar to google drive.we can store any kind of data in s3.
+*To store objects we will create buckets.Bucket is nothing but a folder,inside of bucket objects will present.
+    *Bucket-->Folder
+    *object-->file
+*Every object capacity is upto 5TB.so we can store a single file with upto 5TB in bucket.
+
+why the bucket name should be unique?
+Because whatever file we upload in bucket.For each file or objct it will generate one unique url with bucket name.So  buckets and bucketnames must be unique accross s3.
+
+*Initially no one access the "unique url" from outside like the below url.
+https://s3.us-east-1.amazonaws.com/www.awsaparna123.xyz/dockertest1-AWSB65/index.html -->object url
+https://s3.us-east-1.amazonaws.com/www.awsaparna123.xyz/dockertest1-AWSB65/error.html
+
+*if you want to give the temporary access for  particular file like scorekeeper.js without changing the permissions so there is a concept called "presigned URL".Select any file inside bucket-->go to actions-->shared with Presigned URL-->ask for temporary access for minutes and hours.Based on how much time you configured.The URL will work on that specific time.
+
+*if you build any website you can embeded the presign URL in website.
+  
+presigned URL-->temporary access.No need to change permissions
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+1.How can we convert a s3 bucket as an website?
+*we can convert the s3 bucket as an website.After uploading the files in bucket.
+*Go to s3 bucket-->properties-->enable bucket versioning -->enable the static website hosting and give the file details like index.html and error.html(optional).
+*Go to permissions tab-->disable block public access(then only we can access the bucket publicly)-->bucket policy-->add the below policy
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Principal": "*",
+            "Action": "s3:GetObject",
+            "Resource": [
+                "arn:aws:s3:::www.awsaparna123.xyz",
+                "arn:aws:s3:::www.awsaparna123.xyz/*"
+            ],
+            "Effect": "Allow"
+        }
+    ]
+}
+
+*After go to objects-->choose index.html file-->copy the object url-->access it through browser.
+https://s3.us-east-1.amazonaws.com/www.awsaparna123.xyz/dockertest1-AWSB65/index.html 
+
+
+
+2.How can we deal SSL certificate to the bucket? -->I want custom domain and SSL certificate 
+we cannot do this one using s3 bucket.To resolve it we have Cloud Front service in aws.
+
+*Go to Cloud Front service-->create a distribution-->choose origin-->choose your bucket(www.awsaparna123.xyz)-->origin acess-->enable origin access control settings-->create OAC-->Viewer:Redirect to HTTP to HTTPS-->Alternate domain name(CNAME):www.awsaparna123.xyz and 
+cdn.awsaparna123.xyz-->custom SSL certicate:choose *.awsaparna123.xyz-->default root object:/dockertest1-AWSB65/index.html-->log delivery:on,deliver to Amazon s3,destination s3 bucket:choose awsaparna123logs bucket-->create distribution.
+
+*After distribution is created.It will give OAC policy,copy it and go to s3 bucket-->www.awsaparna123.xyz bucket and edit the permissions od bucket-->paste the OAC policy.
+
+OAC policy:
+------------
+
+{
+        "Version": "2008-10-17",
+        "Id": "PolicyForCloudFrontPrivateContent",
+        "Statement": [
+            {
+                "Sid": "AllowCloudFrontServicePrincipal",
+                "Effect": "Allow",
+                "Principal": {
+                    "Service": "cloudfront.amazonaws.com"
+                },
+                "Action": "s3:GetObject",
+                "Resource": "arn:aws:s3:::www.awsaparna123.xyz/*",
+                "Condition": {
+                    "StringEquals": {
+                      "AWS:SourceArn": "arn:aws:cloudfront::242201281931:distribution/EUIAYWSZRYNBN"
+                    }
+                }
+            }
+        ]
+      }
+      
+*Go to Route 53 create two simple records for cloud front distribution.
+ record1:
+ -------
+ record name:www.awsaparna123.xyz
+ record type:A
+ Value/Route Traffic to:Alias to cloud front distribution and choose id of distribution.
+ 
+ record2:
+ ----------
+ record name:cdn.awsaparna123.xyz
+ record type:A
+ Value/Route Traffic to:Alias to cloud front distribution and choose id of distribution.
+ 
+ 
+*After cloud front is deployed.If we access the http://www.awsaparna123.xyz and http://cdn.awsaparna123.xyz.It only redirects it to https
+
+traffic flows:
+----------- 
+https://www.awsaparna123.xyz -->AWS Route 53--->cloud front distribution--->s3 bucket(access the files in bucket).
+
+https://www.awsaparna123.xyz -->AWS Route 53--->s3 bucket(access the files in bucket)--->cloud front distribution.
+
+---------------------------------------------------------------------------------------------------------------------------------------
+
+
+3.Can I mount s3 bucket as a filesystem?
+yes we can mount s3 bucket but we cant do directly.So we have to install a package.
+
+*create an linux server with giving role(s3 full access) in EC2 and log into server and follow the below steps.
+wget https://s3.amazonaws.com/mountpoint-s3-release/latest/x86_64/mount-s3.rpm 
+
+sudo yum install ./mount-s3.rpm
+
+or 
+
+*create an ubuntu server with giving role(s3 full access) in EC2 and log into server and follow the below steps.
+wget https://s3.amazonaws.com/mountpoint-s3-release/latest/x86_64/mount-s3.deb 
+
+sudo apt-get install -y ./mount-s3.deb
+
+
+
+commands in server:
+> wget https://s3.amazonaws.com/mountpoint-s3-release/latest/x86_64/mount-s3.rpm    -->mount-s3 package
+> sudo yum install ./mount-s3.rpm   
+> mount-s3 --version
+> mkdir /loganalysis                             -->create a directory
+> mount-s3 awsaparna123logs /loganalysis         -->mount the bucket(awsaparna123logs) to directory 
+> ll /loganalysis
+> cp /etc/passwd /loganalysis
+> ll /loganalysis
+> cp /loganalysis/EUIAYWSZRYNBN.2024-11-30-05.73873532.gz .
+> ll
+> gunzip EUIAYWSZRYNBN.2024-11-30-05.73873532.gz 
+> ll
+> cat EUIAYWSZRYNBN.2024-11-30-05.73873532 
+> cat EUIAYWSZRYNBN.2024-11-30-05.73873532 | jq 
+> ll
+> aws s3 cp  mount-s3.rpm s3://awsaparna123logs/ 
+
+
+
+> aws s3 cp mount-s3.rpm s3://awsaparna123-cross-account-bucket/   -->copy mount-s3.rpm in another account "awsaparna123-cross-account-bucket" bucket.
+
+> aws s3 cp mount-s3.rpm s3://awsaparna123-cross-account-bucket/mount-s3-1.rpm 
+
+> aws s3 cp mount-s3.rpm s3://awsaparna123-cross-account-bucket/mount-s3-2.rpm 
+
+> aws s3 rm  s3://awsaparna123-cross-account-bucket/mount-s3-2.rpm 
+
+> aws s3 rm  s3://awsaparna123-cross-account-bucket/mount-s3-1.rpm 
+                  |
+                  |
+                  |
+4.Can we access the one account s3 bucket from login to second account means can we access the s3 bucket of one aws account in another aws account.
+
+*create a bucket in sub account with name "awsaparna123-cross-account-bucket" and attach a policy to this bucket.
+
+*my existing role:vpc1-ec2-session-manager-role,arn is arn:aws:iam::242201281931:role/vpc1-ec2-session-manager-role in main account.
+
+*Attaching the the below role in "awsaparna123-cross-account-bucket" bucket.
+      {
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": [
+                    "arn:aws:iam::242201281931:role/vpc1-ec2-session-manager-role"
+                ],
+                "Service": "cloudfront.amazonaws.com"
+            },
+            "Action": [
+                "s3:GetObject",
+                "s3:PutObject",
+                "s3:DeleteObject"
+            ],
+            "Resource": [
+                "arn:aws:s3:::awsaparna123-cross-account-bucket",
+                "arn:aws:s3:::awsaparna123-cross-account-bucket/*"
+            ]
+        }
+    ]
+}
+
+
+* successfully we can copy "mount-s3.rpm" file in this  "awsaparna123-cross-account-bucket" bucket.
+
+
+
+5.we can copy all our bucket data to another bucket in same account or another aws account.Go to source bucket --> management --> create replication rules.
+
+
+note:
+------
+*bucket versioning-->if you enable bucket versioning suddenly if you delete any file in bucket.we can recover that file.so we can track the changes of bucket. 
+
+*cloud front is an CDN(Content Delivery Network) service.what ever the data is stored in bucket we can cache that data in cloud front for "fast access".So aws cloud front service will store that cache in their edge locations or point of presence(POP).
+
+*if you enable the origin access control settings even the bucket is public no one can access the bucket outside directly so the traffic is routed through cloud front to s3 bucket
+
+*We can also integrate the WAF in Cloud Front.
+
+*Invalidtation option in Cloud Front.It will sync everything means refresh all files in s3 bucket.
+
+
+
+
+Interview question:
+-------------------
+How can deploy my website/webapp with very less cost?
+
+
