@@ -1,0 +1,21 @@
+S3 Life cycle Manager:
+--------------------------
+*S3 Bucket Policies -- Resource Based Policies
+*S3 life cycle rules -->to put objects in different storage classes automatically based on accessing the objects frequently or infrequently.Go to s3 bucket-->In management-->create life cycle rules.
+*S3 Glacier  -- For long term retention.
+*AWS Cloud Trail
+*AWS Cloud Config
+
+
+note:
+-----
+#We can apply the resource based policies to Dynamo DB,vpc endpoint or s3.
+#In resource based policies.so policy will have an principal for aws account or service.
+#PCI DSS 3.2 log retention period
+#if u have life cycle management rules for your bucket.if youu create cloud trail event for s3 logs bucket based on life cycle rules of age of each object  it will automatically sends the files to lower storage classes.
+#if you are accesing the data infrequently u have to store that data in s3 glacier.create vault in s3 galcier and using "FastGlacier" which is freeware Windows Client for Amazon Glacier.using that you can send infrequent data to s3 glacier.
+
+
+1.what is the differnce between cloud Trail and cloud config service?
+Cloud Trail is basically records all the API activity in your aws account that means if you make some changes either console or cli so all the activity was recorded so cloud trail will show you all the activity who did and what actions.-->audit logs or api activity.
+On the other hand AWS Config will do two things one is recording  the changes happening at a resource level.so what are the changes identify on important reource.we will use aws config.
