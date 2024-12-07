@@ -10,7 +10,7 @@
 
 6.terraform fmt: Formats configuration files to a standard style.
 
-7.terraform refresh: Updates the state file with the latest infrastructure information.
+7.terraform refresh:Updates the state file with the latest infrastructure information.
 
 8.terraform show: Displays information about the state file or specific resources.
 
@@ -55,6 +55,23 @@ list                List resources in the state
     rm                  Remove instances from the state
     show                Show a resource in the state
 
+
+
+notes:
+-------
+*terraform is an iac tool
+*difference between attribute or resource block and argument
+*Dynamic block
+*Data block
+*local block
+*output block
+*Dynamo_db table
+*statefile two types like local backend and remote backend
+*if you use s3 as a backend your statefile data will be stored in remote backed like s3
+*if you wont use anything for backend your statefile will be stored locally or local backend
+*-lock=false
+*statefile will be created when you use terraform apply -var-file="terraform.tfvars" if use name convention like variable.tfvars so it wont apply the values properly of that file.
+*modules
 
 
 
