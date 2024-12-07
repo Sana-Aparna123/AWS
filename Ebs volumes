@@ -1,0 +1,62 @@
+AWS EC2:
+
+EC2 Instances or Virtual Machines
+
+Elastic Block Store (EBS)-->
+
+Snapshots-->back up for both instance and volume.
+
+Custom Amazon Machine Images (AMI).
+
+Load Balancers NLB and ALB
+
+Auto Scaling Groups (ASG)
+
+
+Ebs volumes:
+-----------
+AWS EBS types:
+
+Solid State Disks (SSD):No mechanical moving parts it's smilar to pendrive.will have Huge performance 
+
+gp2-->min 100 iops and max 16000 iops
+max size -->16 tb
+3iops/gb
+
+gp3 -->min 3000 iops and max 16000 iops
+
+io1
+
+io2
+
+Hard Disk Drives (HDD):have mechanical parts.so for mechanical parts friction will be there 
+sc1
+
+st1
+
+magnetic
+
+
+DISK-->FORMAT-->FILESYSTEM-->MOUNT
+ebs:
+-----
+lsblk
+fdisk -->create a new partition
+mkfs.ext4 for partition -->it will generate UUID
+
+mkdir /ebsvol1
+mount /dev/partition /ebsvol1  -->temporarily mounting the file system.if server reboots its deleted.so if you addd your mount things in fstab if server reboots also.the partition wont be deleted.
+
+/etc/fstab  -->copy the UUID 
+ 
+UUID                       /ebsvol1             ext4
+
+
+How can we calculate the disk performance based on IOPS-->metric will be taken
+
+
+
+
+
+
+
