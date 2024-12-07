@@ -1,0 +1,55 @@
+Firewall:
+-------------
+
+AWS Network Firewall will inspects the network traffic or vpc traffic.Filtering the traffic or restrict unauthorized request.
+
+rule group format:
+1.standard stateful group
+2.Domain list
+3.Suricata compatible rule string
+
+
+task:
+-------
+
+*create an vpc with two subnets like firewall subnet and protected subnet.
+*firewall rule groups:create statefull rule groups for both domain rule group and standard port groups 
+1.domain rule group -->where we give the domains which domains we want to access from our windows instance
+2.standard-port group -->add the four rules 
+*tcp protocol source:my ip  and destination:protected subnet instance ip -->port 3389
+*ssh protocol source:my ip and destination:protected subnet instance ip -->port 22
+*HTTP protocol source:any  and destination:protected subnet instance ip -->port 22
+*TCP protocol source:protected subnet instance ip -->port 80   if you give this then only your vm can communicate to internet when acess the domains in your vm browser.
+
+*create an firewall policy and attching the both domain rule group and standard-port group
+
+*create an firewall by adding the vpc,firewall subnet and existing firewall policy.
+
+*after firewall is created.update the route table of protected subnet-->with  add 0.0.0.0/0 to Firewall vpce eni interface like eni-07327ef76d9a5401d and  For Firewall Subnet add 0.0.0.0/0 to IGW which is a public subnet.
+
+*For IGWIngressSubnetRT, select EdgeAssosiattions and select IGW.In the same routing table, select routes, in the destination provide CIDR range of ProtectedSubnet and give target as Firewall vpce eni eni-07327ef76d9a5401d.
+
+*login to your windows instance which is in protected subnet.go to browser and search for domains you have allowed in domain rule group.
+
+note:
+*using routing table send traffic to firewall.
+*if firewall is deployed automatically firewall enpoint is created in firewall subnet(public subnet). firewall enpoint is like interface endpoint it will show the vpce-id in your route table target selection.  
+
+
+
+
+firewall rule groups:create statefull rule groups
+1.domain rule group
+2.standard-port group
+
+firewall policies:what rule groups has to be used we define in firewall policies.(add stateful rule groups)
+*create an firewall policy add an domain rule group and standard port group
+
+firewall:
+------
+*create an firewall by attching the firewall policy.
+
+
+                     
+
+
