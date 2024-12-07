@@ -1,0 +1,197 @@
+
+Terraform:
+------------
+Terraform is an Iaac tool.Infrastructure as a tool
+-- AWS Cloudformation Templates & AWS Developer Tools.
+-- Terraform for Iaac
+-- Github Actions
+
+
+
+
+class-1:
+-----------
+resource "<type-of-the-resource>" "<name-of-the-resource>" {  -->resource block or attribute
+}
+
+resource "aws_vpc" "vpc5" {  -->if you add any code inside of resource called arguments. 
+cidr_range = 10.1.0.0/16
+enable_dns_hostnames = true
+tags {
+name = "demovpc" 
+}
+
+*implicit dependency-->by default it depends for example if we want to create a subnet we need vpc id.so like that it is implicit dependency
+*explicit dependency-->we will use depends_on argument based on our requirement.
+
+*depends_on
+*--refresh-only
+
+class-2:
+-------
+we can store terraform backend.tfstate in twp ways like locallly or remotely
+*local backend  -->terraform.tfstate.backup file 
+*remote backend: -->store it in s3 bucket.
+
+provider.tf file
+------------------
+terraform {
+ backend "s3" {
+    bucket = "awsaparna123.xyz"
+    key    = "terraformstatefile.tfstate"
+    region = "us-east-1"
+  }
+ }
+ 
+*lifecycle arguments
+
+
+website link:
+https://blog.gruntwork.io/how-to-manage-terraform-state-28f5697e68fa
+
+*statefile locking
+dynamodb_lock.tf:-->the user should have dynamodbaccess.
+------------------
+resource "aws_dynamodb_table" "terraform_locks" {
+  name         = "terraform-up-and-running-locks"    -->it will create a table in Dynamodb service
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "LockID"
+
+  attribute {
+    name = "LockID"
+    type = "S"
+  }
+}
+
+-->terraform apply
+
+
+provider.tf file:-->updating the dynamotb table data
+-----------------
+terraform {
+ backend "s3" {
+    bucket = "awsaparna123.xyz"
+    key    = "terraformstatefile.tfstate"
+    region = "us-east-1"
+    dynamodb_table = "terraform-up-and-running-locks"
+    encrypt = true
+  }
+}
+
+s3_bucket.tf
+----------------
+#Creating three s3 buckets using count variable or function
+resource "aws_s3_bucket" "my-bucket" {
+  count         = 3 #-->it will create three buckets based on indexes [0,1,2]
+  bucket        = "my-bucket-${count.index+1}"
+  force_destroy = true #-->even if its contains data it will deleted.
+  tags = {
+    Name        = "My bucket"
+    Environment = "Dev"
+  }
+}
+
+
+resource "aws_s3_object" "object" {
+  count  = 3 # 0, 1, 2
+  bucket = "my-bucket-${count.index+1}"
+  key    = "packer_00${count.index+1}.zip"
+  source = "packer_001.zip"
+  depends_on = [ aws_s3_bucket.terraform-bucket-new ]
+}
+
+*we can disable the statefile lock which is stored in dynamodb table using "--lock=false"
+
+
+-->run terraform init -reconfigure command
+
+Note:
+*If someone user access our user data.if its modified there might be a change of state file is corrupted.so we will lock our statefile using "dynamodb table".
+*aws dynamodb update same item for multiple users at once.
+
+1.i have to destroy the code except dynamodb?
+>terraform state list
+>terraform state rm aws_dynamodb_table.terraform_locks
+>mv dynamodb_lock.tf dynamodb_lock.tfx
+>git status
+>git add . ;git commit -m "remove dynamodb from state"
+>git push origin main
+>git pull origin main
+>terraform destroy 
+
+
+
+class 3 topics:
+----------------
+Terraform Functions
+count variable with element function
+length function
+dynamic blocks with locals and for-each
+dynamic block-->if you want to  create a single resource multiple times dynamic block will helpful for us.
+locals block -->it is used to declare the local variables we can use that variables in any file.
+data block  -->fetching existing data which is present in console not in code.
+look up
+output block-->once resource is created we can get attribute reference of resources like arn,ids etc.with thw help of output block.
+condition ? true : false
+each.value
+lower and upper functions-->for case sensitive characters
+Terraform import -->whatever resource we created manually we can import it in terraform using terraform import command.It will import into terraform.tfstate file
+      Example:terraform import aws_s3_bucket.awsaparna123logs awsaparna123logs
+
+outputs.tf file -->output block we will use.it will display information whatever we want.
+Data sources
+
+class 4 topic:
+--------------
+Terraform modules
+
+example:
+--------
+count=length(var.bucket_count)
+
+
+
+
+commands:
+-----------
+Explain Terraform Flow?
+terraform init -->initialize the folder and download the related version and pluggins.when you use this command "terraform  lock file" and ".terraform file" is generated.
+terraform fmt --> it will align the code properly in files.if alignment misses
+terraform validate -->check the sysntax of code.if sysntax is correct,provides configuration is valid otherwise give the syantax errors on specific lines.
+terraform plan -->it will show pre actions like what the terraform implementing.
+terraform apply --> if we run this command it will create an resource in cloud.On that time only it will generate an "terraform.tfstate" file.
+terraform destroy -->whatever resources created in cloud.it will destroy.
+terraform destroy -->It will destroy whatever the resources created in cloud.
+
+subcommands:
+---------
+terraform plan --refresh-only
+terraform refresh
+terraform apply --refresh-only	-->what ever changes we do to resources manually in console which is crested through terraform code.it will refresh those changes in "terraform.tfstate" file not in code.
+terraform import
+
+
+#!/bin/bash
+yum install -y tmux
+sudo dnf update -y
+sudo dnf install nginx -y
+sudo systemctl start nginx
+sudo systemctl status nginx
+echo "<div><h1>$(cat /etc/hostname)</h1></div>" >> /usr/share/nginx/html/index.html
+
+
+data block usage:Fetching existing ami from my account.
+----------------
+data "aws_ami" "my-ami" {
+    most_recent = true
+    name_regex = "^my-new"
+    owners = [242201281931]
+}
+
+datablock:It will retrieve only existing data.
+-----------
+
+
+
+
+ 

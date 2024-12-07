@@ -1,0 +1,42 @@
+Databases:
+------------
+AWS RDS -->It will store structure data on differnt tools likw MYSQL,Postgres,Oracle,MSSQL,mariaDB,DB2
+
+AWS DocumentDB -> MongoDB for NOSQL
+
+AWS DynamoDB -> NoSQL Service.
+
+AWS ElasticCache -> Inmemory Database usin Redis and mMemchacheD
+
+Dealing with RDS-mysql
+----------------------
+*Subnet group-->group of subnets.Create subnet group
+*creating an rds for mysql
+
+master username:admin
+password:admin12345
+
+admin12345
+
+
+*create an ubuntu server
+
+
+database endpoint:
+database-1.czg2qcw0w2md.us-east-1.rds.amazonaws.com
+
+
+
+Note:
+----
+*using tool "mysql workbench" for linux or ubuntu
+            ----------------
+
+*read-replica-->if you replicate it other region so it will give only read only access
+promote option in RDS->the read-replica will be overridden and gives both read and write permissions on RDS database.
+
+*mysql database connection
+
+**Database connection pool-->set of connections its created so related to this resource in RDS we have an option called "proxies"(RDS proxy for connection pooling).
+
+*Create a proxy and go to Lambda funection.in configurations,configure the proxy in RDS dataabses of lambda function(In which lambda function should use proxy)
