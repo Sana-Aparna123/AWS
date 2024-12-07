@@ -1,0 +1,49 @@
+Firewalls -> To restrict the traffic.
+
+Security Groups
+
+Network Access Control Lists (NACL)
+
+TCP & UDP
+
+SSH TCP/22
+
+RDP TCP/3389
+
+HTTP TCP/80
+
+HTTPS TCP/443
+
+SMB TCP/445
+
+DNS TCP/53
+
+Inbound Traffic -> Outside to Inside
+
+Outbound Traffic -> Inside to Outside
+
+Statefull Firewall If you allow inbound/outbound traffic, no need to open the ports for response traffic. AWS SG falls under Statefull firewall.
+
+Stateless Firewall Its required to allowing both inbound and outbound and also ports for response traffic for Stateless Firewall. AWS NACL falls under it.
+
+
+1.what is the difference between NACL and Security Groups?
+
+sg:
+*security group is an statefull firewall
+*AWS SG is applied to all resources like EC2,RDS,Lambda,load balancer etc except subnets.
+*security groups dont have option "deny" by default all the traffic is deny and you need to allow the souce ip address in security groups.	
+
+
+nacl:
+*nacl is an stateless firewall
+*Network access control list(NACL) - Stateless firewall and applicable to subnets only.when we create subnet by default nacl firewall is created.
+*In nacl we have both allow and deny which ever rule have lower it is basically allowed.
+
+
+
+note:
+*For single server we can assign 5 security groups.(with maximum of 5 sgs per network interface).
+*linux Dynamic ports or ephemeral ports  -->49152–65535
+*for single nacl default we can add upto 20 rules 
+*for single security groups we can add upto 60 rules.
