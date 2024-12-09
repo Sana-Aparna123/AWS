@@ -59,11 +59,50 @@ Continue the above process
 
 *Download the code of this "python-fastapi-docker-public" repository in "https://github.com/SreeVeerDevOps/python-fastapi-docker-public" in your local system
 
->git clone https://github.com/SreeVeerDevOps/python-fastapi-docker-public.git fastapi
+In Ubuntu server in EC2.
 
-> cd\fastapi
+> git clone https://github.com/SreeVeerDevOps/python-fastapi-docker-public.git
 
-> code
+> mv python-fastapi-docker-public/ fastapi
+
+> ls
+
+> docker images
+
+> docker system prune --force
+
+> docker system prune
+
+>  cd fastapi/
+
+>  cat Dockerfile 
+
+> docker build -t fastapi:v1  .   -->here period symbol(.) refer to docker file otherwise you can directly give the docker file name
+
+> docker run --rm -d --name app1 -p 8000:80 fastapi:v1
+
+> docker ps
+ 
+> curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+> apt install unzip -y
+> unzip awscliv2.zip
+> sudo ./aws/install
+
+> aws --version
+
+> aws configure -->provied the access key and secret key and defalut region details 
+
+Go to ECR and create an repository with name awsb65/fastapi
+
+
+>  aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 242201281931.dkr.ecr.us-east-1.amazonaws.com
+
+>  docker tag 722e112ed456 242201281931.dkr.ecr.us-east-1.amazonaws.com/awsb65/fastapi:latest
+
+>  docker images
+
+> docker push 242201281931.dkr.ecr.us-east-1.amazonaws.com/awsb65/fastapi
+  
 
 Note:
 
