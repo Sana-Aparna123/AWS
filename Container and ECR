@@ -1,0 +1,80 @@
+Containers:
+------------
+1. Virtual machines vs Containers
+
+2. Install docker engine for running containers.
+
+3. Build custom docker images or container images using Docker build.
+
+4. Create Elastic Container Registry (ECR) and push to it.
+
+5.what are the ways to run containers in aws.
+
+*Containers are the next level or next evaluation of virtual machines.
+
+*Containers doesn't contain kernal.So it will use Kernal of guest os.
+
+*Container engine will run the containers.
+
+*Containers will have "namespaces" and "cgroups". These both are features of linux kernal.
+
+#namespaces are used for to seperate the processers.when we create it will seperate the processors (pid, network namespaces and mount namespaces) 
+#cgroups (control groups) are used to allocate the cpu and memory based on requirement.
+
+*So docker will simplify the above container process so we can deploy container very easily using docker. 
+
+process:
+
+Deploy an ubuntu machine with t2.medium and login into server using ec2 connect or ssh client.
+
+> cat /etc/lsb-release
+
+> docker
+
+> apt install -y net-tools
+
+> ifconfig it will show etho.when we install docker it will add another network interface so it will help your continers communicate with each other and it will work as network bridge to allow or send the traffic inside and outside
+> curl https://get.docker.com/  | bash -->this command will run entire script and install docker.
+
+> docker version
+
+> ifconfig - it will add dockero network interface
+
+> docker images
+
+*Go to hub.docker.com and search for "sreeharshav" and used fastapi docker image(go to tags and get image)
+
+#use this link https://hub.docker.com/r/sreeharshav/fastapi or https://hub.docker.com/r/sreeharshav/testcontainer
+
+Continue the above process
+
+> docker run --rm -d --name app1 - 8000:80 sreeharshav/testcontainer: v1 
+> docker ps   ->already predefined Image
+
+*Access the ubuntu server dns ip or public ip with port:8000
+
+3.Creating an custom image
+
+*go to this github "https://github.com/SreeVeerDevops"
+
+*Download the code of this "python-fastapi-docker-public" repository in "https://github.com/SreeVeerDevOps/python-fastapi-docker-public" in your local system
+
+>git clone https://github.com/SreeVeerDevOps/python-fastapi-docker-public.git fastapi
+
+> cd\fastapi
+
+> code
+
+Note:
+
+Article:what even is a container?
+
+https://jvns.ca/blog/2016/10/10/what-even-is-a-container/
+
+shellscript:
+
+https://get.docker.com/   -->it will install the latest docker
+
+*if we want to create an instance we need AMI image like that if we want to run containers we need container images
+
+*we can get container images from here "https://hub.docker.com/"
