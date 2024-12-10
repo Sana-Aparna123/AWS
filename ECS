@@ -1,0 +1,59 @@
+AWS Elastic Container Service(ECS)
+----------------------------------
+we have to categories 
+1.EC2  -->Customer must manage the EC2 instances.
+2.Fargate -->We will run images directlywithout any infrastructure(Serverless).
+
+*Task definitions--->defining how much memory,cpu and what images these detailsin task definitions
+
+process:
+---------
+*Go to ECS servive and deploy a cluster with t3.small instance type and 3 instances.
+
+*create an task definition with below json code.
+
+    {
+  "requiresCompatibilities": [
+    "EC2"
+  ],
+  "containerDefinitions": [
+    {
+      "name": "fastapi-ec2-awsb65",
+      "image": "242201281931.dkr.ecr.us-east-1.amazonaws.com/awsb65/fastapi:latest",
+      "memory": 256,
+      "cpu": 256,
+      "essential": true,
+      "environment": [
+        {
+          "name": "APP_NAME",
+          "value": "AWSB65_DEMO_APP"
+        }
+      ],
+      "portMappings": [
+        {
+          "containerPort": 80,
+          "protocol": "tcp"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "awslogs-b65-fastapi-ecs",   -->create an loggroup with this name in cloud watch.
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "fastapi-b65"
+        }
+      }
+    }
+  ],
+  "volumes": [],
+  "networkMode": "bridge",
+  "placementConstraints": [],
+  "family": "fastapi-ec2-awsb65"
+}
+
+
+Note:
+--------
+*Same like Task Definitions in EKS we called "manifest".
+*In task definitions whatever the containers we have even if someone stops the container it won't be start automatically.
+*Task option in cluster is used to run container individually.
