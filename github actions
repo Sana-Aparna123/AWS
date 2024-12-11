@@ -61,8 +61,8 @@ secret : us-east-1
 pipeline tips:
 -----------------
 
-TerraformDeployment.yaml file
----------------------------------
+TerraformDeployment.yaml 
+----------------------------
 
 name: Terraform Deployment
 
@@ -146,12 +146,48 @@ Note:
 git remote set-url origin https://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@github.com/Sana-Aparna123/Terraform-github-actions.git
 
 
+TerraformDestroy.yaml:
+-------------------------
+name: Destroy Infrastructure
 
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_destroy:
+        description: "Type 'yes' to confirm destruction of infrastructure"
+        required: true
+        default: "no"
 
+jobs:
+  destroy_infra:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.confirm_destroy == 'yes'
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+      
+      - name: Configure AWS CLI
+        run: |
+         aws configure set aws_access_key_id "${{ secrets.AWS_ACCESS_KEY_ID }}"
+         aws configure set aws_secret_access_key "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+         aws configure set region "${{ secrets.AWS_REGION }}"
+        
+      - name: Set working directory
+        run: cd appu
 
-
-
-
-
+      - name: terraform destroy
+        run: terraform destroy -auto-approve -lock=false
+        working-directory: appu
+        
+     
+     
+     
+     
+     
+        
+        
+        
 
