@@ -1,0 +1,157 @@
+
+
+creating a new public key: -->only one time its enough for single github account 
+------------------------------
+ssh-keygen -t rsa -b 4096 -C "aparnassana2001@gmail.com"
+
+cat /home/bootlabsuser/.ssh/id_rsa.pub
+
+Adding this ublic key in github account: -->github account profile-->settings-->SSH and GPG key-->select SSH and create it.
+--------------------------------------------
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC81rutzcynoUNHvWAHq1YcQ9y8uTiYfVRKoEELCGV2CSKtRjjdHUW0x2yECK5QIWwfjsEfhznTipVw1x5RI3uWOzxY3tYvJOyc6Lga3/juqqFDEgeiYzU7CgTfKZCs5J3x6nSVDeWzJIqFZNs09/xkylVXUXnDLB4CpTAcDZlbcILDuZtLoouXEsZEkjKen2AE/C7eodKXWoheL2CRhUNguqqkHkzluy7L4/1neskN4f0xV6RzFI0c1JFQZa6y9WXMaeHjgTJo51TwcfFr/JRiw5FW4/IGjDphHbnffvJQE10Hevq7WBoBOSd52jfYEyybO9RcB+0LgYGJzf/mbz33mdTX+QRpVX53EjCotRVYpd5gjkzqq5XGbgyIEYA95berS+cHclYJL0rYa65iIA2yjqTaDckKQgA03rcFBQhleIySR9Ni4/7cgtiqGPqTNN4Nn++/tAYsaLQx+8XLhzGVG2d6qkvUcnRVCJWYd0ApL/589agyxJ/bevZJdHChlUGinQqMm79xvEOj2jCaVGBsXRZwR0KNxwXvnu6SvhXCWyOm8kUfdTa0/CLLzxEYHwvvkPSy9kKXLvItRFgVH9Kl91PJedEN0m7nXFCwsoXdRc36afIGyHtFFVNEHsZWOrJDlGue1RLIOJCyg45asbUDGSX6SCVJg22WLihQmmL5Lw== aparnassana2001@gmail.com
+
+
+*create a new repo in github
+
+*push that code in new repo by following commands
+   git init
+   git status
+   git add .
+   git commit -m "Terraformcode"
+   git remote add origin "link of github repo"
+   git remote -v
+   git branch
+   git branch -m development
+   git push origin development
+   
+   
+note:
+-------
+git remote remove origin -->to delete origin
+git branch -a
+git branch -d "branchname"  --> to delete the branch
+
+git push origin -d "barnchname" -->it wont delete default branch 
+
+https://github.dev/Sana-Aparna123/Terraform-code-github-action  --> if you give .dev it will open the visual studio code in  github
+
+
+adding the access key and secret key in  github :
+---------------------------------------------
+1.setting-->secrets-->create a new secret-->actions-->new secret
+name :AWS_ACCESS_KEY_ID
+secret : AKIATQZCSIWFR2QPLKY7
+
+2.setting-->secrets-->create a new secret-->actions-->new secret
+name : AWS_SECRET_ACCESS_KEY
+secret : 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
+
+3.setting-->secrets-->create a new secret-->actions-->new secret
+name : AWS_REGION 
+secret : us-east-1
+
+ 
+ note:
+ ------
+ Workflow of github actions link:
+ 
+ https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions
+ 
+ 
+pipeline tips:
+-----------------
+
+TerraformDeployment.yaml file
+---------------------------------
+
+name: Terraform Deployment
+
+on:
+  push:
+    branches:
+      - dev # Change this to your branch name if different
+  pull_request:
+    branches:
+      - dev  # Change this to your branch name if different
+
+jobs:
+  terraform:
+    name: Terraform Apply
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Git
+      run: |
+        git config --global user.name "Sana-Aparna123"
+        git config --global user.email "aparnassana2001@gmail.com"
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y git
+        
+    - name: Run tests
+      run: |
+        # Your test commands here
+        echo "Running tests..."
+    - name: Download and Install AWS CLI
+      run: |
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        unzip awscliv2.zip
+        sudo ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
+        export PATH=/usr/local/bin:$PATH
+        aws --version
+
+    - name: Configure AWS CLI
+      run: |
+        aws configure set aws_access_key_id "${{ secrets.AWS_ACCESS_KEY_ID }}"
+        aws configure set aws_secret_access_key "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        aws configure set region "${{ secrets.AWS_REGION }}"
+
+    - name: Download and Install Terraform
+      run: |
+        terraform_version="1.9.8"  # Use the specified version
+        wget "https://releases.hashicorp.com/terraform/${terraform_version}/terraform_${terraform_version}_linux_amd64.zip"
+        unzip terraform_${terraform_version}_linux_amd64.zip
+        sudo mv terraform /usr/local/bin/
+        terraform -v
+
+    - name: Set working directory
+      run: cd appu
+
+    - name: Terraform Init
+      run: terraform init
+      working-directory: appu
+
+    - name: Terraform Plan
+      run: terraform plan -lock=false -->i used -lock=false because of synamodb table.
+      working-directory: appu
+
+    - name: Terraform Apply
+      run: terraform apply -auto-approve -lock=false
+      working-directory: appu
+
+   
+    - name: terraform destroy
+      run: terraform destroy -auto-approve -lock=false
+      working-directory: appu
+
+
+Note:
+git remote set-url origin https://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@github.com/Sana-Aparna123/Terraform-github-actions.git
+
+
+
+
+
+
+
+
+
+
+
