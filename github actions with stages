@@ -1,0 +1,151 @@
+
+Github action pipeline with stages:
+--------------------------------------
+
+name: Terraform Deploy with Destroy Prompt
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - dev
+  workflow_dispatch:
+    inputs:
+      destroy_choice:
+        description: 'Do you want to destroy the infrastructure?'
+        required: true
+        type: choice
+        options:
+          - "yes"
+          - "no"
+        default: "no"
+
+jobs:
+  terraform_deploy:
+    name: Terraform Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "Sana-Aparna123"
+          git config --global user.email "aparnassana2001@gmail.com"
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git
+
+      - name: Download and Install AWS CLI
+        run: |
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
+          export PATH=/usr/local/bin:$PATH
+          aws --version
+
+      - name: Configure AWS CLI
+        run: |
+          aws configure set aws_access_key_id "${{ secrets.AWS_ACCESS_KEY_ID }}"
+          aws configure set aws_secret_access_key "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+          aws configure set region "${{ secrets.AWS_REGION }}"
+
+      - name: Download and Install Terraform
+        run: |
+          terraform_version="1.9.8"
+          wget "https://releases.hashicorp.com/terraform/${terraform_version}/terraform_${terraform_version}_linux_amd64.zip"
+          unzip terraform_${terraform_version}_linux_amd64.zip
+          sudo mv terraform /usr/local/bin/
+          terraform -v
+
+      - name: Terraform Init
+        working-directory: appu
+        run: terraform init
+
+      - name: Terraform Plan
+        working-directory: appu
+        run: terraform plan -lock=false
+
+      - name: Terraform Apply
+        working-directory: appu
+        run: terraform apply -auto-approve -lock=false
+
+  wait_for_destroy:
+    needs: terraform_deploy
+    name: Wait for Destroy Approval
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show destroy choice
+        run: |
+          echo "=================================================="
+          echo "Destroy choice is: ${{ vars.DESTROY_CHOICE }}"
+          echo "=================================================="
+          
+          # Set a variable based on the input
+          DESTROY_CHOICE="${{ vars.DESTROY_CHOICE }}"
+
+          # Conditional check to destroy or not
+          if [ "$DESTROY_CHOICE" == "yes" ]; then
+            echo "Destroying infrastructure..."
+            exit 0  # Continue with the destroy operation in the next job (if any)
+          else
+            echo "Infrastructure will not be destroyed."
+            exit 1  # Skip destroy
+          fi
+
+
+  terraform_destroy:
+    needs: wait_for_destroy
+    if: ${{ vars.DESTROY_CHOICE == 'yes' }}  # Only run if the destroy choice is 'yes'
+    name: Destroy Infrastructure
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "Sana-Aparna123"
+          git config --global user.email "aparnassana2001@gmail.com"
+
+      - name: Download and Install AWS CLI
+        run: |
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
+          export PATH=/usr/local/bin:$PATH
+          aws --version
+
+      - name: Configure AWS CLI
+        run: |
+          aws configure set aws_access_key_id "${{ secrets.AWS_ACCESS_KEY_ID }}"
+          aws configure set aws_secret_access_key "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+          aws configure set region "${{ secrets.AWS_REGION }}"
+
+      - name: Download and Install Terraform
+        run: |
+          terraform_version="1.9.8"
+          wget "https://releases.hashicorp.com/terraform/${terraform_version}/terraform_${terraform_version}_linux_amd64.zip"
+          unzip terraform_${terraform_version}_linux_amd64.zip
+          sudo mv terraform /usr/local/bin/
+          terraform -v
+          
+      - name: Terraform Destroy
+        working-directory: appu
+        run: terraform init --reconfigure
+
+      - name: Terraform Destroy
+        working-directory: appu
+        run: terraform destroy -auto-approve -lock=false
+        
+        
+note:
+-----
+setup the varible in project settings
+name : DESTROY_CHOICE
+value : yes or no depends on your choice
+
