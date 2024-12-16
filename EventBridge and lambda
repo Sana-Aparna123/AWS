@@ -1,0 +1,255 @@
+EventBridge
+Lambda
+
+usecase:
+
+1.If a user create a EBS Volume apart from GP2 and GP3,it should be deleted.
+2.If a user create a gp2 and gp3 volume and dont attach to a instance within a minute,so it should be deleted.
+
+
+*In AWS whatever action we do like if we create a volumes it should store in Cloud Trail events like "CreateVolume", these event will be capture by EventBridge based on rules and it will check for target in rules so my target is lambda function and trigger the function(We have to integrate the EventBridge with Lambda function).
+*For our clarification we can see this in cloudwatch log groups
+  ex:/aws/lambda/awsb65-delete-non-gp2-gp3-volumes-eventbased
+
+
+
+process:
+-----------
+*Create an folder wil name "EVENTBRIDGE-LAMBDA"
+
+* create an files inside of EVENTBRIDGE-LAMBDA folder and upload data on it.
+
+delete_non_gp2_gp3_vols.py
+------------------------------
+import json
+import boto3
+import time
+
+def lambda_handler(event, context):
+    hello()
+    hola()
+    time.sleep(4)
+    print(event)
+    string = " ".join( event['resources'])
+    volid = string.split("/", 1)[1]
+    print(volid)
+    client = boto3.client('ec2',region_name='us-east-1')
+    vols = client.describe_volumes(VolumeIds=[volid])
+    vsize = vols['Volumes'][0]['Size']
+    vid = vols['Volumes'][0]['VolumeId']
+    vtype = vols['Volumes'][0]['VolumeType']
+    if vtype == "gp2" or vtype == "gp3":
+        print(f'The Volume {vid} is {vsize} GB  Is A Valid Volume.')
+    else:
+        print(f'The Volume {vid} dont belong to gp2 or gp3 and hence will be deleted.')
+        client.delete_volume( VolumeId=vid)
+        
+def hello():
+    print("Hello..Function Hello Is Been Called...")
+    
+def hola():
+    print("Hola..Function Hola Is Been Called...")
+    
+    
+delete_unattached_ebs_vols.py
+------------------------------
+import json
+import boto3
+def lambda_handler(event, context):
+    client = boto3.client('ec2',region_name='us-east-1')
+    resp = client.describe_volumes().get('Volumes',[])
+    unattachedvols = []
+    for vol in resp:
+      if len(vol['Attachments']) == 0:
+         volid = vol['VolumeId']
+         print(f"Volume {volid} is not attached and will be deleted.")
+         unattachedvols.append(vol['VolumeId'])
+      else:
+         volid = vol['VolumeId']
+         """print(f"Volume {volid} is attached")"""
+    
+    ec2_resource = boto3.resource('ec2', region_name='us-east-1')
+    if  len(unattachedvols) != 0:
+        print(f"The Volumes which are not attached and will be deleted are {unattachedvols} .")
+        for vol in unattachedvols:
+          volume = ec2_resource.Volume(vol)
+          volume.delete()
+    else:
+        print("NO UNATTACHED VOLUME TO DELETE")
+        
+
+copy_key.py
+-----------
+import json
+import boto3
+def lambda_handler(event, context):
+    client = boto3.client('ec2',region_name='us-east-1')
+    response = client.import_key_pair(
+    KeyName='TheNewDemoKey',
+    PublicKeyMaterial=b'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCzsEivxCf8u9S9NbpZsCrRfshmy8BWUKuxNvmrDOObMALeNmF0T4Oqog2yXDMrOO6Iz9fTpNScPe9CzX5mtxMMK09hQbD1CZaQImYkq2U1UmO4pFgkRsszfvAAqbRPtaa2LTjE7fGOKd/B2S+ve4xD5/uWn3h8N2QODv2UKKwqChMXMthCL9rLuHmxxFrWNSkY2lq42kBN1o4shBbi18vH6liqbK6wkRQCYLtB1TJUDFoMTtydVZS+iXFuxPh6rHoEC+52TriVuHPhaHZYZFwO1GGsKWBsMCtZt83lN/tU/AO3i3VlL5n1JPSN/jqMpqR8pZnHFlTed4sMoMFgGcQx',
+    )
+    
+   
+    
+awsb65-layer-checking.py
+--------------------------
+import json 
+import requests
+from faker import Faker
+fake_data = Faker()
+def lambda_handler(event, context):
+    pokemon = requests.get('https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0')
+    all_names = [ item['name'] for item in pokemon.json().get('results')]
+    # print(response.json())
+    print(fake_data.profile())
+    return all_names
+    
+    
+
+
+task 1:
+-----------
+1.If a user create a EBS Volume apart from GP2 and GP3,it should be deleted.
+
+Steps:
+--------
+*Create an function in Lambda with name "awsb65-delete-non-gp2-gp3-volumes-eventbased" and deploy the below code in lambda
+import json
+import boto3
+import time
+
+def lambda_handler(event, context):
+    hello()
+    hola()
+    time.sleep(4)
+    print(event)
+    string = " ".join( event['resources'])
+    volid = string.split("/", 1)[1]
+    print(volid)
+    client = boto3.client('ec2',region_name='us-east-1')
+    vols = client.describe_volumes(VolumeIds=[volid])
+    vsize = vols['Volumes'][0]['Size']
+    vid = vols['Volumes'][0]['VolumeId']
+    vtype = vols['Volumes'][0]['VolumeType']
+    if vtype == "gp2" or vtype == "gp3":
+        print(f'The Volume {vid} is {vsize} GB  Is A Valid Volume.')
+    else:
+        print(f'The Volume {vid} dont belong to gp2 or gp3 and hence will be deleted.')
+        client.delete_volume( VolumeId=vid)
+        
+def hello():
+    print("Hello..Function Hello Is Been Called...")
+    
+def hola():
+    print("Hola..Function Hola Is Been Called...")
+    
+
+*Create an rule in EventBridge with name "awsb65-delete-non-gp2-gp3-volumes-eventbased" and choose ec2 in aws service with EBS Volume and with aws service of target "Lambda function" and function "awsb65-delete-non-gp2-gp3-volumes-eventbased"
+  Event Type Specification 1:createVolume and modifyVolume
+  Event Type Specification 2:Any volume ARN
+  
+*Test by creating an volume with gp2 or gp3 and io1 or io2.Apart from gp2 or gp3.Every volume whatever you create it will deleted.
+
+
+task 2:
+---------
+2.If a user create a gp2 and gp3 volume and dont attach to a instance within a minute,so it should be deleted.
+
+Steps:
+--------
+*Create an function in Lambda with name "awsb65-ebs-unattached-volume-deletion-schedule" and deploy the below code in lambda.
+
+import json
+import boto3
+def lambda_handler(event, context):
+    client = boto3.client('ec2',region_name='us-east-1')
+    resp = client.describe_volumes().get('Volumes',[])
+    unattachedvols = []
+    for vol in resp:
+      if len(vol['Attachments']) == 0:
+         volid = vol['VolumeId']
+         print(f"Volume {volid} is not attached and will be deleted.")
+         unattachedvols.append(vol['VolumeId'])
+      else:
+         volid = vol['VolumeId']
+         """print(f"Volume {volid} is attached")"""
+    
+    ec2_resource = boto3.resource('ec2', region_name='us-east-1')
+    if  len(unattachedvols) != 0:
+        print(f"The Volumes which are not attached and will be deleted are {unattachedvols} .")
+        for vol in unattachedvols:
+          volume = ec2_resource.Volume(vol)
+          volume.delete()
+    else:
+        print("NO UNATTACHED VOLUME TO DELETE")
+        
+        
+*Create an schedule with this name "awsb65-ebs-unattached-volume-deletion-schedule"
+   - Recurring schedule
+   - cron expression: * * * * *
+   - Flexible time window : off
+   - Templated targets : AWS Lambda Invoke
+   - Lambda Function : awsb65-ebs-unattached-volume-deletion-schedule
+   - Enable schedule
+   - Create a new role
+   
+   
+*Test by create an gp2 or gp3 volume by attaching to instance or not attaching to instance.
+
+
+task 3:
+--------
+*Using third party libraries,testing the api in lambdadunction by using layers.
+
+*create an function with name "awsb65-layer-checking" and deploy the below code and create a new event with name "sa" and save event.
+import json 
+import requests
+from faker import Faker
+fake_data = Faker()
+def lambda_handler(event, context):
+    pokemon = requests.get('https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0')
+    all_names = [ item['name'] for item in pokemon.json().get('results')]
+    print(fake_data.profile())
+    return all_names
+
+note:
+------
+In the above module,the faker and requests are third party tools.So it won't work.you will get an error.
+
+so for that what we will do we will create an directory and install third party tools.
+ 
+Installing third party libraries to add in lambda funtion:
+----------------------------------------------------------
+mkdir lambda-layer
+cd lambda-layer
+mkdir layer-data
+pip install --target=./layer-data requests
+pip install --target=./layer-data faker
+pip install --target=./layer-data numpy
+
+Drive link:
+https://drive.google.com/drive/folders/15QjWpiXtjpFBtSr04E2lj6Ja4LESYrvC
+file name:lambda-layer-requests-faker-python_3_12.zip    -->Download this zip file in lambda-layer folder
+
+make an layer-data file as zip format like layer-data.zip
+
+
+*Go to lambda service and go to layers,there create an layer with name "awsb65_req_faker" 
+    - upload a .zip file : choose lambda-layer-requests-faker-python_3_12.zip
+    - Compatible architectures : x86_64
+    - Compatible runtimes : Choose Python 3.10,Python 3.11 and Python 3.12
+    
+*Go to your function "awsb65-layer-checking" and scroll down,below in layers section add an layer.
+    - choose a layer : Custom layers
+    - Custom layers : awsb65_req_faker
+    - Version : 1 
+    and then click add
+    
+*Later deploy and test the code of "awsb65-layer-checking".The api of pokemon will work with modules requests and faker
+
+
+Note:
+-------
+*If you want to use third party libraries in lambda function we have an "layers".We can create an layer with compatible library for your lambda function.For every Lambda function you can add upto 5 layers.
+
+
