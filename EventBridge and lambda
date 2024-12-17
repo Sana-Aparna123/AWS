@@ -150,6 +150,9 @@ def hola():
   
 *Test by creating an volume with gp2 or gp3 and io1 or io2.Apart from gp2 or gp3.Every volume whatever you create it will deleted.
 
+*Check the logs for this "awsb65-delete-non-gp2-gp3-volumes-eventbased" in logs group of Cloud Trail.
+
+
 
 task 2:
 ---------
@@ -195,6 +198,9 @@ def lambda_handler(event, context):
    
    
 *Test by create an gp2 or gp3 volume by attaching to instance or not attaching to instance.
+
+
+*Check the logs for this "awsb65-ebs-unattached-volume-deletion-schedule" in logs group of Cloud Trail.
 
 
 task 3:
