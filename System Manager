@@ -251,6 +251,24 @@ sudo service amazon-ssm-agent start
 *After we have to integrate the PagerDuty into aws cloud watch service.After we will configure these things in Simple Notification Service(SNS).Their we will create a topic with by giving autoscaling ARN and protocol is HTTPS and their endpoint url like in PagerDuty it will give one url(Integration url) and then create a subscription.if you want you can create an email subscription.	
 
 
+*Create an email account in Godaady and update the DNS records of email in my godaddy domain account.
+mail: aparna@awsaparna123.xyz
+
+*Download the professional email app and login with email like aparna@awsaparna123.xyz
+
+*Update that email and email json and https of pagerduty.So create three subscriptions for that.
+
+*Go to cloud watch and create an alarm for "Testserver01" based on "disk usage" of "CWAgent" .Give the alarm name "Disk_More_Than_35_Testserver01"
+            --> login into Testserver01 and check df -h space and install terraform file and copy that files lot of times using for loop 
+            to occupy space in server.if disks space >= 35 % for an 1 min then it will send alarm you will get notifications in email and pagerduty.goto
+            cloud watch and check metrics for it.
+            
+*Go to cloud watch and create an alarm for "Testserver02" based on "memory usage" of "CWAgent" .Give the alarm name "Memory_More_Than_30_Testserver02"
+            --> login into Testserver02 and install stress in it using the below commands and if you run "stress" it will give one command
+            run it.Go to cloud watch and check metrics for alarm
+            
+               > sudo amazon-linux-extras install epel -y
+               > sudo yum install stress -y
 note:
 ------
 sudo amazon-ssm-agent -register -code "RgMn9krEw7ENiEtFKGSu" -id "e95022e3-a6e2-4395-9584-0bed27ed835b" -region "us-east-1"
