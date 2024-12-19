@@ -1,0 +1,56 @@
+Amazon Redshift:
+-------------------
+It is a kind of serverless database it will store huge amount of data means in petabytes like data ware house.It will store structured data we will use this for anaylytics purposes.For suppose you have 500 GB of stuctured data like mysql or postgresql so we can load that data in Amazon Redshit and use it for reporting.Its just like RDS.
+
+AMazon QuickSight:
+------------------
+*We can also use QuickSight service in AWS for reporting.It will give graphical presentation for reportings.
+
+Amazon Athena:
+-------------
+If you have huge amount of data  load data on Athena so you can run queries on that data.
+
+Amazon Glue:
+-----------
+AWS Glue is a fully managed ETL (Extract, Transform, and Load) service provided by Amazon Web Services (AWS). It is designed to prepare and transform large volumes of data for analytics. If you have a large dataset, you can use AWS Glue to clean, filter, and transform the data by removing unwanted or unnecessary columns and records, among other tasks. This allows you to produce a clean, structured dataset that is ready for analysis or storage in a data warehouse like Amazon Redshift or a data lake like Amazon S3.
+
+*When should you use Athena?-->good for unstructured data
+Amazon Athena should be used to run ad-hoc queries on Amazon S3 data sets using ANSI SQL. It can process structured, unstructured, and semi-structured data formats. It can also have data integration with BI tools or SQL clients using JDBC, or with QuickSight for easy visualizations. 
+
+*When should you use Redshift?-->good for structured data
+It is recommended to use Amazon Redshift on large sets of structured data. It is scalable enough that even if new nodes are added to the cluster, it can be easily accommodated with few configuration changes. Because it contains a number of replicas, even if any node is down, it interacts with other nodes and rebuilds the drive. Redshift can be integrated with Tableau, Informatica, Microstrategy, Pentaho, SAS, and other BI Tools. It can be used for log analysis, clickstream events, and real-time data sets.
+
+
+Amazon MSK(Amazon Managed Streaming for Apache Kafka):-->Directly the logs will come from customer end.
+-------------------------------------------------------
+It will run real-time streaming applications.If you take Netflix or prime.So may people will watch at a time.So the large amount logs will generated.
+ex:
+Yes, Netflix generates logs while you are watching movies, recording details like the title you watched, when you started and stopped watching, and which device you used, all contributing to your viewing history and allowing them to personalize your recommendations based on your preferences.
+
+*Using that data-stream we can stream the logs using AMazon MSK or Apache kafka.
+
+Amazon MQ or Amazon SQS:
+--------------------------
+
+
+
+Step Functions:
+---------------
+
+
+
+
+
+Cost Optimization:
+-----------------
+*Try to use lambda Serverless for repeated tasks instead of Ec2 instances.
+*Shutdown non-prod infra during weekends.Applies to Ec2,DB,EKS clusters also.
+*Check Cost Explorer to understand which services are consumed more.
+*Try to run using conatiners on ECS instead of Ec2 instances. 
+
+Centralized Management using Aws Orgs & IAM SSO integrated with Active Directory.
+
+
+
+
+
