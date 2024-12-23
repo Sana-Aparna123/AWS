@@ -1,0 +1,105 @@
+Document DB and Elastic Cache:
+-------------------------------
+AWS DocumentDB - MongoDB
+AWS ElasticCache - Redis & Memcache (In memory database)
+
+
+AWS DocumentDB:
+---------------
+*Create an cluster with three instances for testing.
+
+*After creating an cluster it will give Document DB Certificate Authority (CA) required to authenticate to your cluster securely.So we cannot directly authenticate to DocumentDB directly.So we will use "Studio 3T" tool
+
+
+*Installing the Studio 3T and create a new connection with this name "DocumentDBConnection"
+
+*Download the certificate t connect to Document DB cluster by using below url
+    > wget https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem
+ 
+*Go to terminal and run command 
+ > telnet docdb-cluster-1.cluster-czg2qcw0w2md.us-east-1.docdb.amazonaws.com 27017  -->it wont connect directly so we need ssh-tunnel to connect to database.
+ 
+*We can do ssh-tunnel by creating an instance so through that instance we will do ssh-tunnel.
+
+
+
+
+
+sudo apt-get install gnupg
+
+wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add -
+
+echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+
+sudo apt-get update
+
+sudo apt-get install -y  mongodb-mongosh
+
+mongosh --version
+
+mongosh
+
+mongosh --tls --host docdb-cluster-1.cluster-czg2qcw0w2md.us-east-1.docdb.amazonaws.com:27017 --tlsCAFile global-bundle.pem --retryWrites=false --username adminaparna --password
+
+
+
+Note:
+------
+Studio 3T tool --> In realtime developers will use this to connect to database.
+
+
+connection name:DocumentDBConnection
+
+
+
+use customers;
+
+
+
+username:adminaparna
+password:aparna123
+
+
+
+
+db.clients.insertMany([
+    {
+        "job": "Horticultural consultant",
+        "company": "Anderson, Armstrong and Mccormick",
+        "ssn": "460-44-2780",
+        "residence": "9625 Elizabeth Pines\nJacobshire, WY 52200",
+        "blood_group": "O-",
+        "website": [
+            "https://hanna.com/"
+        ],
+        "username": "wolfekimberly",
+        "name": "Sharon Daniels",
+        "sex": "F",
+        "address": "PSC 4244, Box 9855\nAPO AP 02002",
+        "mail": "bradleysanchez@gmail.com",
+        "birthdate": "1963-03-14"
+    }
+  ])
+  
+  
+  db.clients.insertOne({
+    _id: ObjectId('676519cc744a47c90d567a3c'),
+    job: 'Journalist, magazine',
+    company: 'Mcmahon-Booth',
+    ssn: '314-56-3292',
+    residence: '571 John Knolls\nJeffreystad, MA 45045',
+    current_location: [ '-80.0412585', '55.817456' ],
+    blood_group: 'O+',
+    website: [
+      'http://rhodes.com/',
+      'http://www.adams.info/',
+      'http://brown-hicks.info/',
+      'http://www.lopez-burton.com/'
+    ],
+    username: 'patricia26',
+    name: 'Robert Buchanan',
+    sex: 'M',
+    address: '065 Norma Rapids\nAndersonhaven, NY 88597',
+    mail: 'stevensedward@hotmail.com',
+    birthdate: '1981-11-07'
+  })
