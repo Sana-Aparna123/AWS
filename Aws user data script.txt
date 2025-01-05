@@ -1,0 +1,27 @@
+Amazon linux3 script
+#!/bin/bash
+yum install -y tmux
+sudo dnf update -y
+sudo dnf install nginx -y
+sudo systemctl start nginx
+sudo systemctl status nginx
+echo "<div><h1>$(cat /etc/hostname)</h1></div>" >> /usr/share/nginx/html/index.html
+
+Amazon linux2 script	
+yum update -y
+yum install telnet -y
+yum install -y tmux
+amazon-linux-extras install nginx1.12 -y
+service nginx start
+systemctl enable nginx
+echo "<div><h1>$(cat /etc/hostname)</h1></div>" >> /usr/share/nginx/html/index.html
+
+
+Ubuntu machine(22.04 machine):
+#!/bin/bash
+sudo apt-get update
+sudo apt-get install -y net-tools unzip nginx
+sudo systemctl start nginx
+sudo systemctl enable nginx
+echo "<h1>Deployed via Terraform</h1>" | sudo tee /var/www/html/inde
+nginx-debian.html
